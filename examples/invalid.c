@@ -3,8 +3,9 @@
 #include <stdlib.h>
 
 int main(void) {
-  float x = FLT_MAX;
-  float result = x * x;
+  float x = 0;
+  float y = 0;
+  float result = x / y;
   printf("%.10e\n", result);
 
   return EXIT_SUCCESS;

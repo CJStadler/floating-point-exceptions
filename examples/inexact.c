@@ -3,8 +3,8 @@
 #include <stdlib.h>
 
 int main(void) {
-  float x = FLT_MAX;
-  float result = x * x;
+  float x = 99999999;
+  float result = x + 1;
   printf("%.10e\n", result);
 
   return EXIT_SUCCESS;
