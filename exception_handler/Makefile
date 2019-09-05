@@ -1,22 +1,23 @@
 COMPILER := clang
+FLAGS := -O1 -ffast-math
 
 trap_exceptions.so: src/trap_exceptions.c
 	${COMPILER} -lm -shared -fPIC -o $@ $<
 
 overflow.out: src/overflow.c
-	${COMPILER} -o $@ $<
+	${COMPILER} ${FLAGS} -o $@ $<
 
 div_by_zero.out: src/div_by_zero.c
-	${COMPILER} -o $@ $<
+	${COMPILER} ${FLAGS} -o $@ $<
 
 inexact.out: src/inexact.c
-	${COMPILER} -o $@ $<
+	${COMPILER} ${FLAGS} -o $@ $<
 
 underflow.out: src/underflow.c
-	${COMPILER} -o $@ $<
+	${COMPILER} ${FLAGS} -o $@ $<
 
 invalid.out: src/invalid.c
-	${COMPILER} -o $@ $<
+	${COMPILER} ${FLAGS} -o $@ $<
 
 .PHONY: clean
 clean:
