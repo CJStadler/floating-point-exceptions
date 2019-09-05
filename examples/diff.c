@@ -4,7 +4,9 @@ double diff ( double x ) {
   // the assignment from (1), but evaluated incrementally from left to right
   double P;
   P = 0.5 / x;
+  printf("P = %.20f\n", P);
   P *= 0.5;
+  printf("P = %.20f\n", P);
   P += 2.0 / x;
   printf("P = %.20f\n", P);
 
