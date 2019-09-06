@@ -55,7 +55,7 @@ __attribute__((constructor)) void register_checkpoint_signal_handler() {
   // Register signal handler
   sigaction(SIGFPE, &sa, NULL);
 
-  // Enable all floating point exceptions.
+  // Enable all floating point exceptions except inexact.
   // https://www.gnu.org/software/libc/manual/html_node/Status-bit-operations.html
-  feenableexcept(FE_ALL_EXCEPT);
+  feenableexcept(FE_OVERFLOW | FE_UNDERFLOW | FE_INVALID | FE_DIVBYZERO);
 }
