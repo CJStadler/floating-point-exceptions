@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ucontext.h>
 
 /*
  * This can be loaded when executing a binary to catch all floating point
@@ -17,7 +18,7 @@
  *
  * Prints the type of exception and exits.
  */
-void catch_fpe(int sig, siginfo_t *info, void *secret) {
+void catch_fpe(int sig, siginfo_t *info, ucontext_t *ucontext) {
   puts("Caught floating point exception");
 
   int exception_code = info->si_code;
@@ -38,8 +39,9 @@ void catch_fpe(int sig, siginfo_t *info, void *secret) {
     puts("Unknown exception type");
   }
 
-  puts("Exiting");
-  exit(EXIT_FAILURE);
+  puts("Resuming");
+  setcontext(ucontext);
+  // exit(EXIT_FAILURE);
 }
 
 // Enable floating point exceptions and register signal handler before executing
