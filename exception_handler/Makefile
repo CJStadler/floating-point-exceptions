@@ -1,5 +1,5 @@
 COMPILER := clang
-FLAGS := -O0
+FLAGS := -O1 -ffast-math
 
 trap_exceptions.so: src/trap_exceptions.c
 	${COMPILER} -lm -shared -fPIC -o $@ $<
