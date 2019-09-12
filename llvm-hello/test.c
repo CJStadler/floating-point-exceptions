@@ -1,9 +1,11 @@
 #include <stdio.h>
 
-int foo() {
-  return 10;
+int foo(int x) {
+  return x + 10;
 }
 
 int main() {
-  printf("x = %i\n", foo());
+  int y = 5;
+  y += 10;
+  printf("x = %i\n", foo(y));
 }
