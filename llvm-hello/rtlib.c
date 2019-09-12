@@ -3,10 +3,16 @@
 
 /* Runtime functions */
 
-void logop(double i) {
-  if (i > DBL_MAX) {
-    puts("Detected Overflow");
-  } else if (i < DBL_MIN) {
-    puts("Detected Underflow");
-  }
+void _printException(char* type, int lineno) {
+  printf("Detected %s on line %i\n", type, lineno);
 }
+
+void logop(double i, int lineno) {
+  if (i > DBL_MAX) {
+    _printException("Overflow", lineno);
+  } else if (i < DBL_MIN) {
+    _printException("Underflow", lineno);
+  }
+
+}
+

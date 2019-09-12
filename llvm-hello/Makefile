@@ -20,7 +20,7 @@ example-opt.ll: example.ll build/hello/libHello.so
 	opt -load build/hello/libHello.so -hello -o $@ $<
 
 example.ll: example.c
-	clang -S -emit-llvm $<
+	clang -S -emit-llvm -g -O1 -ffast-math $<
 
 build/hello/libHello.so: hello/Hello.cpp
 	$(MAKE) -C build

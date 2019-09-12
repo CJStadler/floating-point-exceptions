@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <float.h>
 
+double foo(double x) {
+  x *= 2;
+  x *= 2;
+  return x;
+}
+
 int main() {
   double x = DBL_MAX;
-  puts("op1");
-  x *= 2;
-  puts("op2");
-  x *= 2;
-  printf("%f\n", x);
+  printf("%f\n", foo(x));
   return 0;
 }
