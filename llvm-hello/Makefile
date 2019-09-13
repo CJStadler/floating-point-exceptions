@@ -1,5 +1,8 @@
+COMPILER := clang
+OPT_FLAGS := # -O1 -ffast-math
+
 example.out: example.o
-	clang -o $@ $<
+	$(COMPILER) -lm -o $@ $<
 
 example.o: linked.bc
 	llc-8 --filetype=obj -o $@ $<
@@ -14,13 +17,13 @@ example.bc: example-opt.ll
 	opt -o $@ $<
 
 rtlib.ll: rtlib.c
-	clang -S -emit-llvm $<
+	$(COMPILER) -S -emit-llvm $<
 
 example-opt.ll: example.ll build/hello/libHello.so
 	opt -load build/hello/libHello.so -hello -o $@ $<
 
 example.ll: example.c
-	clang -S -emit-llvm -g -O1 -ffast-math $<
+	$(COMPILER) -S -emit-llvm -g $(OPT_FLAGS) $<
 
 build/hello/libHello.so: hello/Hello.cpp
 	$(MAKE) -C build

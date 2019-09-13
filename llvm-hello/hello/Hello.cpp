@@ -23,7 +23,7 @@ namespace {
         {Type::getDoubleTy(Ctx), Type::getInt32Ty(Ctx)};
       Type *retType = Type::getVoidTy(Ctx);
       FunctionType *logFuncType = FunctionType::get(retType, paramTypes, false);
-      Constant *logFunc = F.getParent()->getOrInsertFunction("logop", logFuncType);
+      Constant *logFunc = F.getParent()->getOrInsertFunction("check_for_exception", logFuncType);
 
       bool changed = false;
 
