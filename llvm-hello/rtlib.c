@@ -10,7 +10,7 @@ void _printException(char* type, int lineno) {
   printf("Detected %s on line %i\n", type, lineno);
 }
 
-void check_for_exception(double i, int lineno) {
+void check_for_exception(int lineno) {
   puts("Checking for exceptions");
   int raised =
     fetestexcept(FE_OVERFLOW | FE_UNDERFLOW | FE_DIVBYZERO | FE_INVALID);

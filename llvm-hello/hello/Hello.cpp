@@ -19,11 +19,10 @@ namespace {
     virtual bool runOnFunction(Function &F) {
       // Get the function to call from our runtime library.
       LLVMContext &Ctx = F.getContext();
-      std::vector<Type*> paramTypes =
-        {Type::getDoubleTy(Ctx), Type::getInt32Ty(Ctx)};
+      std::vector<Type*> paramTypes = {Type::getInt32Ty(Ctx)};
       Type *retType = Type::getVoidTy(Ctx);
-      FunctionType *logFuncType = FunctionType::get(retType, paramTypes, false);
-      Constant *logFunc = F.getParent()->getOrInsertFunction("check_for_exception", logFuncType);
+      FunctionType *checkFuncType = FunctionType::get(retType, paramTypes, false);
+      Constant *checkFunc = F.getParent()->getOrInsertFunction("check_for_exception", checkFuncType);
 
       bool changed = false;
 
@@ -43,8 +42,8 @@ namespace {
             builder.SetInsertPoint(&B, ++builder.GetInsertPoint());
 
             // Insert a call to our function.
-            Value* args[] = {op, line_value};
-            builder.CreateCall(logFunc, args);
+            Value* args[] = {line_value};
+            builder.CreateCall(checkFunc, args);
 
             changed = true;
           }
