@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <float.h>
 
 double over(double x) {
@@ -20,8 +21,8 @@ double div_by_zero(double x) {
   return y / x;
 }
 
-int main() {
-  double x = DBL_MAX;
+int main(int argc, char *argv[]) {
+  double x = atof(argv[1]);
   printf("%f\n", over(x));
   double y = DBL_MIN;
   printf("%f\n", under(y));
