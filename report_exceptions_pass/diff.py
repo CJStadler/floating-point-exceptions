@@ -1,7 +1,9 @@
 from subprocess import check_call, run
+import sys
 
 RTLIB_FILENAME = "rtlib.bc"
 PASS_FILENAME = "build/report_exceptions/libReportExceptions.so"
+FFAST_MATH_FLAGS = ["-O1", "-ffast-math"]
 
 
 def compile(source_filename, flags, out_filename):
@@ -42,7 +44,17 @@ def compile(source_filename, flags, out_filename):
 
 
 def test_with_flags(source_filename, flags):
-    print("Compiling {} with {}".format(source_filename, flags))
+    print("Compiling {} with flags {}".format(source_filename, flags))
     exe_filename = "temp.out"
     compile(source_filename, flags, exe_filename)
     run("./{}".format(exe_filename))
+
+
+def main():
+    source_filename = sys.argv[1]
+    test_with_flags(source_filename, [])
+    test_with_flags(source_filename, FFAST_MATH_FLAGS)
+
+
+if __name__ == "__main__":
+    main()
