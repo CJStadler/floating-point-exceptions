@@ -43,17 +43,18 @@ def compile(source_filename, flags, out_filename):
     check_call(["clang", "-lm", "-o", out_filename, object])
 
 
-def test_with_flags(source_filename, flags):
+def test_with_flags(source_filename, flags, arguments):
     print("Compiling {} with flags {}".format(source_filename, flags))
     exe_filename = "temp.out"
     compile(source_filename, flags, exe_filename)
-    run("./{}".format(exe_filename))
+    args_string = " ".join(arguments)
+    run(["./{}".format(exe_filename), args_string])
 
 
 def main():
-    source_filename = sys.argv[1]
-    test_with_flags(source_filename, [])
-    test_with_flags(source_filename, FFAST_MATH_FLAGS)
+    _, source_filename, *arguments = sys.argv
+    test_with_flags(source_filename, [], arguments)
+    test_with_flags(source_filename, FFAST_MATH_FLAGS, arguments)
 
 
 if __name__ == "__main__":
