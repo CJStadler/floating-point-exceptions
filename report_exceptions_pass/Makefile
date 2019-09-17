@@ -19,13 +19,13 @@ example.bc: example-opt.ll
 rtlib.ll: rtlib.c
 	$(COMPILER) -S -emit-llvm $<
 
-example-opt.ll: example.ll build/hello/libHello.so
-	opt -load build/hello/libHello.so -hello -o $@ $<
+example-opt.ll: example.ll build/report_exceptions/libReportExceptions.so
+	opt -load build/report_exceptions/libReportExceptions.so -report_exceptions -o $@ $<
 
 example.ll: example.c
 	$(COMPILER) -S -emit-llvm -g $(OPT_FLAGS) $<
 
-build/hello/libHello.so: hello/Hello.cpp
+build/report_exceptions/libReportExceptions.so: report_exceptions/ReportExceptions.cpp
 	$(MAKE) -C build
 
 .PHONY: clean

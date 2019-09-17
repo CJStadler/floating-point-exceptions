@@ -12,9 +12,9 @@
 using namespace llvm;
 
 namespace {
-  struct Hello : public FunctionPass {
+  struct ReportExceptions : public FunctionPass {
     static char ID;
-    Hello() : FunctionPass(ID) {}
+    ReportExceptions() : FunctionPass(ID) {}
 
     virtual bool runOnFunction(Function &F) {
       // Get the function to call from our runtime library.
@@ -53,11 +53,11 @@ namespace {
       return changed;
     }
 
-  }; // end of struct Hello
+  }; // end of struct ReportExceptions
 }  // end of anonymous namespace
 
-char Hello::ID = 0;
-static RegisterPass<Hello> X("hello",
-                             "Hello World Pass",
-                             false,
-                             false);
+char ReportExceptions::ID = 0;
+static RegisterPass<ReportExceptions> X("report_exceptions",
+                                        "Instrument the program to report floating point exceptions.",
+                                        false,
+                                        false);
