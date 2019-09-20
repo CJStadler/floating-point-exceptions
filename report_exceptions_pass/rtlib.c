@@ -6,29 +6,29 @@
 
 /* Runtime functions */
 
-void _printException(char* type, int lineno) {
-  printf("Detected %s on line %i\n", type, lineno);
+void _printException(char* type) {
+  printf("Detected %s\n", type);
 }
 
 void check_for_exception(int lineno) {
-  puts("Checking for exceptions");
+  printf("Checking for exceptions on line %i\n", lineno);
   int raised =
     fetestexcept(FE_OVERFLOW | FE_UNDERFLOW | FE_DIVBYZERO | FE_INVALID);
 
   if (raised & FE_OVERFLOW) {
-    _printException("Overflow", lineno);
+    _printException("Overflow");
   }
 
   if (raised & FE_UNDERFLOW) {
-    _printException("Underflow", lineno);
+    _printException("Underflow");
   }
 
   if (raised & FE_DIVBYZERO) {
-    _printException("DivByZero", lineno);
+    _printException("DivByZero");
   }
 
   if (raised & FE_INVALID) {
-    _printException("Invalid", lineno);
+    _printException("Invalid");
   }
 
   feclearexcept(FE_ALL_EXCEPT);

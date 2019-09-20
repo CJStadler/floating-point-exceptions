@@ -54,6 +54,7 @@ def test_with_flags(source_filename, flags, arguments):
 def main():
     _, source_filename, *arguments = sys.argv
     test_with_flags(source_filename, [], arguments)
+    print()
     test_with_flags(source_filename, FFAST_MATH_FLAGS, arguments)
 
 

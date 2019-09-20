@@ -9,37 +9,51 @@
 #include <llvm/IR/DebugLoc.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 
+#include "llvm/IR/Instruction.h"
+
 using namespace llvm;
 
 namespace {
+  bool isFloatingPointOp(Instruction& op) {
+    if (op.isBinaryOp()) {
+      switch(op.getOpcode()) {
+        case Instruction::FAdd:
+        case Instruction::FSub:
+        case Instruction::FMul:
+        case Instruction::FDiv:
+        case Instruction::FRem:
+          return true;
+      }
+    }
+
+    return false;
+  }
+
   struct ReportExceptions : public FunctionPass {
     static char ID;
     ReportExceptions() : FunctionPass(ID) {}
 
-    virtual bool runOnFunction(Function &F) {
+    virtual bool runOnFunction(Function &func) {
       // Get the function to call from our runtime library.
-      LLVMContext &Ctx = F.getContext();
+      LLVMContext &Ctx = func.getContext();
       std::vector<Type*> paramTypes = {Type::getInt32Ty(Ctx)};
       Type *retType = Type::getVoidTy(Ctx);
       FunctionType *checkFuncType = FunctionType::get(retType, paramTypes, false);
-      Constant *checkFunc = F.getParent()->getOrInsertFunction("check_for_exception", checkFuncType);
+      Constant *checkFunc = func.getParent()->getOrInsertFunction("check_for_exception", checkFuncType);
 
       bool changed = false;
 
-      for (auto &B : F) {
-        for (auto &I : B) {
-          if (auto *op = dyn_cast<BinaryOperator>(&I)) {
-            // TODO: make sure is FP operation.
-
-            Instruction *instruction = dyn_cast<Instruction>(op);
-            const llvm::DebugLoc &debugInfo = instruction->getDebugLoc();
-            int line = debugInfo->getLine();
+      for (auto &block : func) {
+        for (auto &op : block) {
+          if (isFloatingPointOp(op)) {
+            const llvm::DebugLoc &debugInfo = op.getDebugLoc();
+            int line = debugInfo.getLine();
             llvm::Type *i32_type = llvm::IntegerType::getInt32Ty(Ctx);
             llvm::Constant *line_value = llvm::ConstantInt::get(i32_type, line, true);
 
             // Insert *after* `op`.
-            IRBuilder<> builder(op);
-            builder.SetInsertPoint(&B, ++builder.GetInsertPoint());
+            IRBuilder<> builder(&op);
+            builder.SetInsertPoint(&block, ++builder.GetInsertPoint());
 
             // Insert a call to our function.
             Value* args[] = {line_value};

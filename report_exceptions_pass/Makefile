@@ -1,5 +1,5 @@
 COMPILER := clang
-OPT_FLAGS := # -O1 -ffast-math
+OPT_FLAGS := -O1 -ffast-math
 
 example.out: example.o
 	$(COMPILER) -lm -o $@ $<
@@ -20,7 +20,7 @@ rtlib.ll: rtlib.c
 	$(COMPILER) -S -emit-llvm $<
 
 example-opt.ll: example.ll build/report_exceptions/libReportExceptions.so
-	opt -load build/report_exceptions/libReportExceptions.so -report_exceptions -o $@ $<
+	opt -S -load build/report_exceptions/libReportExceptions.so -report_exceptions -o $@ $<
 
 example.ll: example.c
 	$(COMPILER) -S -emit-llvm -g $(OPT_FLAGS) $<
@@ -30,4 +30,4 @@ build/report_exceptions/libReportExceptions.so: report_exceptions/ReportExceptio
 
 .PHONY: clean
 clean:
-	rm *.o *.ll *.o *.bc *.out
+	rm -f *.o *.ll *.o *.bc *.out
