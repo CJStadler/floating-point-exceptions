@@ -7,11 +7,11 @@
 /* Runtime functions */
 
 void _printException(char* type) {
-  printf("Detected %s\n", type);
+  fprintf(stderr, "Detected %s\n", type);
 }
 
 void check_for_exception(int lineno) {
-  printf("Checking for exceptions on line %i\n", lineno);
+  fprintf(stderr, "Checking for exceptions on line %i\n", lineno);
   int raised =
     fetestexcept(FE_OVERFLOW | FE_UNDERFLOW | FE_DIVBYZERO | FE_INVALID);
 
