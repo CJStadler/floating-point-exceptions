@@ -1,14 +1,15 @@
 COMPILER := clang
-OPT_FLAGS := -O1 -ffast-math
+CLANG_FLAGS := -Xclang -disable-O0-optnone -ffast-math
+OPT_FLAGS := -load build/report_exceptions/libReportExceptions.so -report_exceptions -instcombine
 
 example.out: example.o
 	$(COMPILER) -lm -o $@ $<
 
 example.o: linked.bc
-	llc-8 --filetype=obj -o $@ $<
+	llc --filetype=obj -o $@ $<
 
 linked.bc: rtlib.bc example.bc
-	llvm-link-8 -o $@ $^
+	llvm-link -o $@ $^
 
 rtlib.bc: rtlib.ll
 	opt -o $@ $<
@@ -20,10 +21,10 @@ rtlib.ll: rtlib.c
 	$(COMPILER) -S -emit-llvm $<
 
 example-opt.ll: example.ll build/report_exceptions/libReportExceptions.so
-	opt -S -load build/report_exceptions/libReportExceptions.so -report_exceptions -o $@ $<
+	opt -S $(OPT_FLAGS) -o $@ $<
 
 example.ll: example.c
-	$(COMPILER) -S -emit-llvm -g $(OPT_FLAGS) $<
+	$(COMPILER) -S -emit-llvm -g $(CLANG_FLAGS) $<
 
 build/report_exceptions/libReportExceptions.so: report_exceptions/ReportExceptions.cpp
 	$(MAKE) -C build

@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
   } else {
     x = DBL_MAX;
   }
+  printf("x=%f\n", x);
   printf("%f\n", over(x));
   double y = DBL_MIN;
   printf("%f\n", under(y));

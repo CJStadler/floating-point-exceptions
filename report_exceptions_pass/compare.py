@@ -7,15 +7,19 @@ RTLIB_FILENAME = "rtlib.bc"
 PASS_FILENAME = "build/report_exceptions/libReportExceptions.so"
 UNOPT_EXE = "unopt.out"
 OPT_EXE = "opt.out"
-UNOPT_FLAGS = ["-O1"]
-OPT_FLAGS = ["-O1", "-ffast-math"]
+CLANG_FLAGS = ["-Xclang", "-disable-O0-optnone"]
+LLVM_FLAGS = ["-instcombine"]
 
 
-def compile(source_filename, flags, out_filename):
-    print("Compiling {} -> {} with flags {}".
-          format(source_filename, out_filename, flags))
+def compile(source_filename, out_filename, ffast_math=False):
+    print("Compiling {} -> {} with ffast-math={}".
+          format(source_filename, out_filename, ffast_math))
     # Compile to IR
     ll_name = "temp.ll"
+
+    flags = CLANG_FLAGS
+    if ffast_math:
+        flags += ["-ffast-math"]
     subprocess.check_call(["clang",
                            "-S",
                            "-emit-llvm",
@@ -32,6 +36,7 @@ def compile(source_filename, flags, out_filename):
                            "-load",
                            PASS_FILENAME,
                            "-report_exceptions",
+                           *LLVM_FLAGS,
                            "-o", instrumented,
                            ll_name])
 
@@ -80,21 +85,22 @@ def main():
                         help="The C source file to compile. If this option is \
                               not set we assume it has already been compiled.")
     parser.add_argument("-r", "--run",
-                        help="Execute the two programs with the given args. \
-                              If this is not set we will compile without \
-                              executing")
+                        help="Execute the two programs",
+                        action="store_true")
+    parser.add_argument("args", nargs=argparse.REMAINDER,
+                        help="Arguments to pass to the program. Only used if \
+                        --run is set.")
 
     args = parser.parse_args()
 
     if args.compile:
         source_filename = args.compile
-        compile(source_filename, UNOPT_FLAGS, UNOPT_EXE)
-        compile(source_filename, OPT_FLAGS, OPT_EXE)
+        compile(source_filename, UNOPT_EXE, ffast_math=False)
+        compile(source_filename, OPT_EXE, ffast_math=True)
 
-    if args.run is not None:
-        exe_args = args.run
-        run(UNOPT_EXE, exe_args)
-        run(OPT_EXE, exe_args)
+    if args.run:
+        run(UNOPT_EXE, args.args)
+        run(OPT_EXE, args.args)
 
 
 if __name__ == "__main__":
