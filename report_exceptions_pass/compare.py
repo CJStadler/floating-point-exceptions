@@ -61,7 +61,7 @@ def compile(source_filename, out_filename, ffast_math=False):
     subprocess.check_call(["clang", "-lm", "-o", out_filename, object])
 
 
-def run(exe_filename, arguments):
+def run(exe_filename, arguments, save_trace=False):
     _check_file(exe_filename)
     args_string = " ".join(arguments)
     command = "./{}".format(exe_filename)
@@ -69,7 +69,16 @@ def run(exe_filename, arguments):
     proc = subprocess.run([command, args_string],
                           stderr=subprocess.PIPE,
                           stdout=subprocess.PIPE)
-    print(proc.stderr.decode('utf-8'))
+
+    trace = proc.stderr.decode('utf-8')
+
+    if save_trace:
+        trace_filename = exe_filename + ".trace"
+        print("Writing trace to {}".format(trace_filename))
+        with open(trace_filename, "w") as f:
+            f.write(trace)
+    else:
+        print(trace)
 
 
 def _check_file(filename):
@@ -87,6 +96,9 @@ def main():
     parser.add_argument("-r", "--run",
                         help="Execute the two programs",
                         action="store_true")
+    parser.add_argument("-s", "--save",
+                        help="Save the traces to files instead of printing",
+                        action="store_true")
     parser.add_argument("args", nargs=argparse.REMAINDER,
                         help="Arguments to pass to the program. Only used if \
                         --run is set.")
@@ -99,8 +111,8 @@ def main():
         compile(source_filename, OPT_EXE, ffast_math=True)
 
     if args.run:
-        run(UNOPT_EXE, args.args)
-        run(OPT_EXE, args.args)
+        run(UNOPT_EXE, args.args, save_trace=args.save)
+        run(OPT_EXE, args.args, save_trace=args.save)
 
 
 if __name__ == "__main__":

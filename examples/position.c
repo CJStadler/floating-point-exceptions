@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <float.h>
 
 void position(double sl, double xy[2]) {
   // output produced in x,y
@@ -34,18 +36,9 @@ void position(double sl, double xy[2]) {
   xy[1] = y;
 }
 
-int main() {
-  double xy[2];
-  double x = 0;
-  double y = 0;
-
-  for (double sl = 0.54; sl < 0.545; sl += 0.0000001) {
-    position(sl, xy);
-    x = xy[0];
-    y = xy[1];
-
-    printf("sl = %.20f\n", sl);
-    printf("x = %.30f\n", x);
-    printf("y = %.30f\n", y);
-  }
+int main(int argc, char *argv[]) {
+    double input = atof(argv[1]);
+    double xy[2] = { 0, 0 };
+    position(input, xy);
+    printf("position(%f) = (%f, %f)\n", input, xy[0], xy[1]);
 }
