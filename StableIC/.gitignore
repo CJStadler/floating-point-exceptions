@@ -1,0 +1,10 @@
+.DS_Store
+._*
+*.out
+*.bc
+*.ll
+*.o
+build
+cmake_build
+*~
+*#
