@@ -4,6 +4,10 @@
 #include <float.h>
 #include <fenv.h>
 
+#include "exceptions.h"
+
+int overflows = 0;
+
 /* Runtime functions */
 
 void _printException(char* type) {
@@ -16,6 +20,7 @@ void check_for_exception(int lineno) {
     fetestexcept(FE_OVERFLOW | FE_UNDERFLOW | FE_DIVBYZERO | FE_INVALID);
 
   if (raised & FE_OVERFLOW) {
+    overflows += 1;
     _printException("Overflow");
   }
 
