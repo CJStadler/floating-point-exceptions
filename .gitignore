@@ -1,5 +1,7 @@
 *.out
 *.o
 *.so
+*.bc
 *.gz
 *.tar
+*.trace
