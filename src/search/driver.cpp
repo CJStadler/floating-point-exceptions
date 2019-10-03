@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <random>
 
-#include "exceptions.h"
+#include "../exception_counters.h"
 
 // Interfaces for P and P'
 double p_unopt(double input);
 double p_opt(double input);
 
-const double SEED = 31.8
+const double SEED = 31.8;
 
 int check_exceptions() {
   // Return the value of the "overflows" global, and reset it.
@@ -31,7 +31,7 @@ int main() {
   for (int i = 0; i < 100; i++) {
     input = distribution(generator);
     double _r1 = p_unopt(input);
-    int overflows_unopt = check_exceptions()
+    int overflows_unopt = check_exceptions();
     double _r2 = p_opt(input);
     int overflows_opt = check_exceptions();
 

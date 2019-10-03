@@ -4,11 +4,12 @@
 #include <float.h>
 #include <fenv.h>
 
-#include "exceptions.h"
+#include "../exception_counters.h"
 
+/* Runtime library */
+
+/* Initialize exception counters */
 int overflows = 0;
-
-/* Runtime functions */
 
 void _printException(char* type) {
   fprintf(stderr, " %s", type);
