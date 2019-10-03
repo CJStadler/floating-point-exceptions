@@ -3,7 +3,8 @@
 #include <float.h>
 
 int run(double x) {
-  x *= 2;
-  x *= 2;
+  double y = DBL_MAX;
+  x *= y;
+  x /= y;
   return x;
 }

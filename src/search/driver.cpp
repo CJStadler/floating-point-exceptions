@@ -35,7 +35,7 @@ int main() {
     double _r2 = p_opt(input);
     int overflows_opt = check_exceptions();
 
-    printf("input: %A unopt: %i opt: %i\n", input, overflows_unopt, overflows_opt);
+    // printf("input: %A unopt: %i opt: %i\n", input, overflows_unopt, overflows_opt);
 
     // Increment the appropriate counter.
     if (overflows_unopt > 0) {
