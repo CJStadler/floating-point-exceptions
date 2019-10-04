@@ -9,6 +9,7 @@ double p_unopt(double input);
 double p_opt(double input);
 
 const double SEED = 31.8;
+const int ITERATIONS = 1000;
 
 int check_exceptions() {
   // Return the value of the "overflows" global, and reset it.
@@ -19,7 +20,7 @@ int check_exceptions() {
 
 int main() {
   std::default_random_engine generator(SEED);
-  std::normal_distribution<double> distribution(0.0,0.5);
+  std::uniform_real_distribution<double> distribution(-1.0, 1.0);
 
   double input;
 
@@ -28,14 +29,16 @@ int main() {
   int both = 0;
   int neither = 0;
 
-  for (int i = 0; i < 100; i++) {
+  printf("Running %i iterations\n", ITERATIONS);
+
+  for (int i = 0; i < ITERATIONS; i++) {
     input = distribution(generator);
     double _r1 = p_unopt(input);
     int overflows_unopt = check_exceptions();
     double _r2 = p_opt(input);
     int overflows_opt = check_exceptions();
 
-    // printf("input: %A unopt: %i opt: %i\n", input, overflows_unopt, overflows_opt);
+    // printf("input: %.10e unopt: %i opt: %i\n", input, overflows_unopt, overflows_opt);
 
     // Increment the appropriate counter.
     if (overflows_unopt > 0) {
