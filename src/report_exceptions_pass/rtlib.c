@@ -8,8 +8,10 @@
 
 /* Runtime library */
 
-/* Initialize exception counters */
 int overflows = 0;
+int underflows = 0;
+int divbyzeros = 0;
+int invalids = 0;
 
 void _printException(char* type) {
   // fprintf(stderr, " %s", type);
@@ -21,19 +23,22 @@ void check_for_exception(int lineno) {
     fetestexcept(FE_OVERFLOW | FE_UNDERFLOW | FE_DIVBYZERO | FE_INVALID);
 
   if (raised & FE_OVERFLOW) {
-    overflows += 1;
+    overflows++;
     _printException("Overflow");
   }
 
   if (raised & FE_UNDERFLOW) {
+    underflows++;
     _printException("Underflow");
   }
 
   if (raised & FE_DIVBYZERO) {
+    divbyzeros++;
     _printException("DivByZero");
   }
 
   if (raised & FE_INVALID) {
+    invalids++;
     _printException("Invalid");
   }
 

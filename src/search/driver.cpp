@@ -9,13 +9,16 @@ double p_unopt(double input);
 double p_opt(double input);
 
 const double SEED = 31.8;
-const int ITERATIONS = 1000;
+const int ITERATIONS = 100000;
 
 int check_exceptions() {
-  // Return the value of the "overflows" global, and reset it.
-  double count = overflows;
-  overflows = 0;
-  return count;
+  // Return the total number of exceptions
+  int total = overflows
+            + underflows
+            + divbyzeros
+            + invalids;
+  reset_counts();
+  return total;
 }
 
 int main() {
