@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <float.h>
 #include <random>
 
 #include "../exception_counters.h"
@@ -10,6 +11,8 @@ double p_opt(double input);
 
 const double SEED = 31.8;
 const int ITERATIONS = 100000;
+const double INPUT_MAX = 1.0;
+const double INPUT_MIN = -INPUT_MAX;
 
 int check_exceptions() {
   // Return the total number of exceptions
@@ -23,7 +26,7 @@ int check_exceptions() {
 
 int main() {
   std::default_random_engine generator(SEED);
-  std::uniform_real_distribution<double> distribution(-1.0, 1.0);
+  std::uniform_real_distribution<double> distribution(INPUT_MIN, INPUT_MAX);
 
   double input;
 

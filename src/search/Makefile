@@ -17,8 +17,14 @@ NAME := $(basename $(SOURCE))
 search.out: search.bc
 	$(COMPILER) -lm -o $@ $<
 
-search.o: search.bc
-	llc --filetype=obj -o $@ $<
+test.out: test-linked.bc
+	$(COMPILER) -lm -o $@ $<
+
+test-linked.bc: test.bc $(RTLIB) unopt_$(NAME).bc opt_$(NAME).bc
+	llvm-link -o $@ $^
+
+test.ll: test.c
+	$(COMPILER) -S -emit-llvm -o $@ $<
 
 search.bc: driver.bc $(RTLIB) unopt_$(NAME).bc opt_$(NAME).bc
 	llvm-link -o $@ $^
