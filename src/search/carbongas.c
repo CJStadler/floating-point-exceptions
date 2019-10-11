@@ -1,6 +1,4 @@
 #include <math.h>
-#define TRUE 1
-#define FALSE 0
 
 double ex11(double v) {
 	double p = 35000000.0;

@@ -1,10 +1,10 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
 
-// Overflows when x > 0.5
-int run(double x) {
-  double y = DBL_MAX;
-  y /= x;
+double run(double x) {
+  double y = DBL_MAX / 10;
+  y = y / x;
   return y;
 }
 

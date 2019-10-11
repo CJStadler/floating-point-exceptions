@@ -1,4 +1,4 @@
-COMPILER  := clang++
+COMPILER := clang++
 PASS_LIB := ../report_exceptions_pass/build/report_exceptions/libReportExceptions.so
 RTLIB := ../report_exceptions_pass/rtlib.bc
 CLANG_FLAGS := -Xclang -disable-O0-optnone -ffast-math

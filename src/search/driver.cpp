@@ -9,8 +9,8 @@
 double p_unopt(double input);
 double p_opt(double input);
 
-const double SEED = 31.8;
-const int ITERATIONS = 100000;
+const double SEED = 59.3;
+const int ITERATIONS = 1000000000;
 const double INPUT_MAX = 1.0;
 const double INPUT_MIN = -INPUT_MAX;
 
@@ -40,20 +40,23 @@ int main() {
   for (int i = 0; i < ITERATIONS; i++) {
     input = distribution(generator);
     double _r1 = p_unopt(input);
-    int overflows_unopt = check_exceptions();
+    int exceptions_unopt = check_exceptions();
     double _r2 = p_opt(input);
-    int overflows_opt = check_exceptions();
+    int exceptions_opt = check_exceptions();
 
-    // printf("input: %.10e unopt: %i opt: %i\n", input, overflows_unopt, overflows_opt);
+    if (exceptions_unopt > 0 || exceptions_opt > 0) {
+      fprintf(stderr, "input: %.10e unopt: %i opt: %i\n",
+          input, exceptions_unopt, exceptions_opt);
+    }
 
     // Increment the appropriate counter.
-    if (overflows_unopt > 0) {
-      if (overflows_opt > 0) {
+    if (exceptions_unopt > 0) {
+      if (exceptions_opt > 0) {
         both++;
       } else {
         only_unopt++;
       }
-    } else if (overflows_opt > 0) {
+    } else if (exceptions_opt > 0) {
       only_opt++;
     } else {
       neither++;
