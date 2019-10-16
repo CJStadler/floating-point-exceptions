@@ -50,15 +50,11 @@
 (get-model)
 (pop)
 
-(assert (not (mult_overflow r r)))
-
 (push)
 (assert (mult_underflow r r))
 (check-sat)
 (get-model)
 (pop)
-
-(assert (not (mult_underflow r r)))
 
 (define-fun t1 () Real (* r r))
 
@@ -70,15 +66,11 @@
 (get-model)
 (pop)
 
-(assert (not (div_invalid 2.0 t1)))
-
 (push)
 (assert (div_by_zero 2.0 t1))
 (check-sat)
 (get-model)
 (pop)
-
-(assert (not (div_by_zero 2.0 t1)))
 
 (push)
 (assert (div_overflow 2.0 t1))
@@ -86,15 +78,11 @@
 (get-model)
 (pop)
 
-(assert (not (div_overflow 2.0 t1)))
-
 (push)
 (assert (div_underflow 2.0 t1))
 (check-sat)
 (get-model)
 (pop)
-
-(assert (not (div_underflow 2.0 t1)))
 
 (define-fun t2 () Real (/ 2.0 t1))
 
@@ -106,12 +94,9 @@
 (get-model)
 (pop)
 
-(assert (not (add_overflow 3.0 t2)))
-
 (push)
 (assert (add_underflow 3.0 t2))
 (check-sat)
 (get-model)
 (pop)
 
-(assert (not (add_underflow 3.0 t2)))

@@ -10,11 +10,9 @@ double check_mult(double a, double b) {
   double abs1 = fabs(product);
   if (DBL_MAX < abs1) {
     fprintf(stderr, "Overflow!\n");
-    exit(1);
   }
   if (0.0 < abs1 && abs1 < DBL_MIN) {
     fprintf(stderr, "Underflow!\n");
-    exit(1);
   }
 
   return product;
@@ -27,18 +25,15 @@ double check_div(double numerator, double denominator) {
     } else {
       fprintf(stderr, "DivByZero!\n");
     }
-    exit(1);
   }
 
   double abs1 = fabs(numerator);
   double abs2 = fabs(denominator);
   if (abs1 > abs2 * DBL_MAX) {
     fprintf(stderr, "Overflow!\n");
-    exit(1);
   }
   if (0.0 < abs1 && abs1 < abs2 * DBL_MIN) {
     fprintf(stderr, "Underflow!\n");
-    exit(1);
   }
 
   return numerator / denominator;
@@ -55,11 +50,9 @@ double ex6(double v, double w, double r) {
   abs1 = fabs(t1);
   if (DBL_MAX < abs1) {
     fprintf(stderr, "Overflow!\n");
-    exit(1);
   }
   if (0.0 < abs1 && abs1 < DBL_MIN) {
     fprintf(stderr, "Underflow!\n");
-    exit(1);
   }
 
   numerator = 2.0;
@@ -71,22 +64,28 @@ double ex6(double v, double w, double r) {
     } else {
       fprintf(stderr, "DivByZero!\n");
     }
-    exit(1);
   }
 
   abs1 = fabs(numerator);
   abs2 = fabs(denominator);
   if (abs1 > abs2 * DBL_MAX) {
     fprintf(stderr, "Overflow!\n");
-    exit(1);
   }
   if (0 < abs1 && abs1 < abs2 * DBL_MIN) {
     fprintf(stderr, "Underflow!\n");
-    exit(1);
   }
 
   double t2 = 2.0 / t1;
+
   double t3 = 3.0 + t2;
+  abs1 = fabs(t3);
+  if (DBL_MAX < abs1) {
+    fprintf(stderr, "Overflow!\n");
+  }
+  if (0.0 < abs1 && abs1 < DBL_MIN) {
+    fprintf(stderr, "Underflow!\n");
+  }
+
   double t4 = 2.0 * v;
   double t5 = 3.0 - t4;
   double t6 = 0.125 * t5;
