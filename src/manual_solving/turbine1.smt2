@@ -11,9 +11,24 @@
   (and (> (abs (* a b)) 0.0)
        (< (abs (* a b)) DBL_MIN)))
 
+(define-fun div_invalid ((num Real) (denom Real)) Bool
+  (and (= denom 0.0) (= num 0.0)))
+
+(define-fun div_by_zero ((num Real) (denom Real)) Bool
+  (and (= denom 0.0) (not (= num 0.0))))
+
+(define-fun div_overflow ((num Real) (denom Real)) Bool
+  (> (abs num) (* (abs denom) DBL_MAX)))
+
+(define-fun div_underflow ((num Real) (denom Real)) Bool
+  (and (> (abs num) 0.0)
+       (< (abs num) (* (abs denom) DBL_MIN))))
+
 (declare-const v Real)
 (declare-const w Real)
 (declare-const r Real)
+
+;; Check (r * r)
 
 (push)
 (assert (mult_overflow r r))
@@ -28,3 +43,43 @@
 (check-sat)
 (get-model)
 (pop)
+
+(assert (not (mult_underflow r r)))
+
+(define-fun t1 () Real (* r r))
+
+;; Check (2.0 / t1)
+
+(push)
+(assert (div_invalid 2.0 t1))
+(check-sat)
+(get-model)
+(pop)
+
+(assert (not (div_invalid 2.0 t1)))
+
+(push)
+(assert (div_by_zero 2.0 t1))
+(check-sat)
+(get-model)
+(pop)
+
+(assert (not (div_by_zero 2.0 t1)))
+
+(push)
+(assert (div_overflow 2.0 t1))
+(check-sat)
+(get-model)
+(pop)
+
+(assert (not (div_overflow 2.0 t1)))
+
+(push)
+(assert (div_underflow 2.0 t1))
+(check-sat)
+(get-model)
+(pop)
+
+(assert (not (div_underflow 2.0 t1)))
+
+(define-fun t2 () Real (/ 2.0 t1))
