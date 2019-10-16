@@ -7,12 +7,12 @@
 #include "../exception_counters.h"
 
 // Interfaces for P and P'
-double p_unopt(double input);
-double p_opt(double input);
+double p_unopt(double input, double input2);
+double p_opt(double input, double input2);
 
 const double SEED = 59.3;
-const int ITERATIONS = 1000000000;
-const double INPUT_MAX = 1.0;
+const int ITERATIONS = 100000000;
+const double INPUT_MAX = 1.0e-307;
 const double INPUT_MIN = -INPUT_MAX;
 
 int check_exceptions() {
@@ -30,6 +30,7 @@ int main() {
   std::uniform_real_distribution<double> distribution(INPUT_MIN, INPUT_MAX);
 
   double input;
+  double input2;
 
   int only_unopt = 0;
   int only_opt = 0;
@@ -40,16 +41,17 @@ int main() {
 
   for (int i = 0; i < ITERATIONS; i++) {
     input = distribution(generator);
+    input2 = distribution(generator);
     reset_counts();
     feclearexcept(FE_ALL_EXCEPT);
-    double _r1 = p_unopt(input);
+    double _r1 = p_unopt(input, input2);
     int exceptions_unopt = check_exceptions();
-    double _r2 = p_opt(input);
+    double _r2 = p_opt(input, input2);
     int exceptions_opt = check_exceptions();
 
     if (exceptions_unopt > 0 || exceptions_opt > 0) {
-      fprintf(stderr, "input: %.10e unopt: %i opt: %i\n",
-          input, exceptions_unopt, exceptions_opt);
+      fprintf(stderr, "input: (%.17e, %.17e) unopt: %i opt: %i\n",
+          input, input2, exceptions_unopt, exceptions_opt);
     }
 
     // Increment the appropriate counter.

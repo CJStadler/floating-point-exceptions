@@ -2,7 +2,7 @@ COMPILER := clang++
 PASS_LIB := ../report_exceptions_pass/build/report_exceptions/libReportExceptions.so
 RTLIB := ../report_exceptions_pass/rtlib.bc
 CLANG_FLAGS := -Xclang -disable-O0-optnone -ffast-math
-LLVM_FLAGS := -load $(PASS_LIB) -report_exceptions
+LLVM_FLAGS := # -load $(PASS_LIB) -report_exceptions
 
 # Strip extensions
 NAME := $(basename $(SOURCE))
@@ -17,6 +17,9 @@ NAME := $(basename $(SOURCE))
 search.out: search.bc
 	$(COMPILER) -lm -o $@ $<
 
+search2.out: search2.bc
+	$(COMPILER) -lm -o $@ $<
+
 test.out: test-linked.bc
 	$(COMPILER) -lm -o $@ $<
 
@@ -26,10 +29,25 @@ test-linked.bc: test.bc $(RTLIB) unopt_$(NAME).bc opt_$(NAME).bc
 test.ll: test.c
 	$(COMPILER) -S -emit-llvm -o $@ $<
 
+test2.out: test2-linked.bc
+	$(COMPILER) -lm -o $@ $<
+
+test2-linked.bc: test2.bc unopt_$(NAME).bc opt_$(NAME).bc
+	llvm-link -o $@ $^
+
+test2.ll: test2.c
+	$(COMPILER) -S -emit-llvm -o $@ $<
+
 search.bc: driver.bc $(RTLIB) unopt_$(NAME).bc opt_$(NAME).bc
 	llvm-link -o $@ $^
 
+search2.bc: driver2.bc $(RTLIB) unopt_$(NAME).bc opt_$(NAME).bc
+	llvm-link -o $@ $^
+
 driver.ll: driver.cpp
+	$(COMPILER) -S -emit-llvm -o $@ $<
+
+driver2.ll: driver2.cpp
 	$(COMPILER) -S -emit-llvm -o $@ $<
 
 # Compile to IR and run report_exceptions pass.
