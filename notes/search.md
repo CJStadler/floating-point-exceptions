@@ -71,3 +71,9 @@ Running 1000000 iterations
 - Use examples from Ariadne paper and compare opt and unopt.
 - DReal solver: approximate solutions to real constraints.
 - C -> SMT?
+
+## Symbolic execution
+
+- KLEE now has a z3 backend. Does it use float or real?
+- KLEE generates smt files: https://klee.github.io/docs/files/
+- Then run dReal on the smt?
