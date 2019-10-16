@@ -11,6 +11,20 @@
   (and (> (abs (* a b)) 0.0)
        (< (abs (* a b)) DBL_MIN)))
 
+(define-fun add_overflow ((a Real) (b Real)) Bool
+  (> (abs (+ a b)) DBL_MAX))
+
+(define-fun add_underflow ((a Real) (b Real)) Bool
+  (and (> (abs (+ a b)) 0.0)
+       (< (abs (+ a b)) DBL_MIN)))
+
+(define-fun sub_overflow ((a Real) (b Real)) Bool
+  (> (abs (- a b)) DBL_MAX))
+
+(define-fun sub_underflow ((a Real) (b Real)) Bool
+  (and (> (abs (- a b)) 0.0)
+       (< (abs (- a b)) DBL_MIN)))
+
 (define-fun div_invalid ((num Real) (denom Real)) Bool
   (and (= denom 0.0) (= num 0.0)))
 
@@ -83,3 +97,21 @@
 (assert (not (div_underflow 2.0 t1)))
 
 (define-fun t2 () Real (/ 2.0 t1))
+
+;; Check (3 + t2)
+
+(push)
+(assert (add_overflow 3.0 t2))
+(check-sat)
+(get-model)
+(pop)
+
+(assert (not (add_overflow 3.0 t2)))
+
+(push)
+(assert (add_underflow 3.0 t2))
+(check-sat)
+(get-model)
+(pop)
+
+(assert (not (add_underflow 3.0 t2)))
