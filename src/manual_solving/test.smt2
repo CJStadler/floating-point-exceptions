@@ -15,12 +15,6 @@
 (declare-const w Real)
 (declare-const r Real)
 
-(push)
-(assert (mult_overflow r r))
-(check-sat)
-(get-model)
-(pop)
-
 (assert (not (mult_overflow r r)))
 
 (push)
