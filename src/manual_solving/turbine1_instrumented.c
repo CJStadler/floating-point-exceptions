@@ -1,7 +1,6 @@
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 // We can't actually call this because then it would only need to be reached one
 // for coverage. Can it be a macro?
@@ -98,21 +97,4 @@ double ex6(double v, double w, double r) {
   double t13 = t3 - t12;
   double t14 = t13 - 4.5;
   return t14;
-}
-
-int main(int argc, char** argv) {
-  if (argc < 4) {
-    puts("3 inputs required");
-    exit(1);
-  }
-
-  double v = atof(argv[1]);
-  double w = atof(argv[2]);
-  double r = atof(argv[3]);
-
-  double res = ex6(v, w, r);
-
-  printf("ex6(%.10e, %.10e, %.10e) = %.10e\n", v, w, r, res);
-
-  return 0;
 }

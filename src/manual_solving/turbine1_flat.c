@@ -1,6 +1,4 @@
 #include <math.h>
-#define TRUE 1
-#define FALSE 0
 
 double ex6(double v, double w, double r) {
   double t1 = r * r;
