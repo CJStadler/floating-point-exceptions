@@ -30,6 +30,10 @@
 (declare-const w Real)
 (declare-const r Real)
 
+(assert (< (abs v) DBL_MAX))
+(assert (< (abs w) DBL_MAX))
+(assert (< (abs r) DBL_MAX))
+
 ;; Check (r * r)
 (define-fun t1 () Real (* r r))
 
