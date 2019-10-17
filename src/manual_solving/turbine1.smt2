@@ -87,3 +87,180 @@
 (get-model)
 (pop)
 
+;; Check (2.0 * v)
+(define-fun t4 () Real (* 2.0 v))
+
+(push)
+(assert (check_overflow t4))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t4))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (3.0 - t4)
+(define-fun t5 () Real (- 3.0 t4))
+
+(push)
+(assert (check_overflow t5))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t5))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (0.125 * t5)
+(define-fun t6 () Real (* 0.125 t5))
+
+(push)
+(assert (check_overflow t6))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t6))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (w * w)
+(define-fun t7 () Real (* w w))
+
+(push)
+(assert (check_overflow t7))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t7))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (t7 * r)
+(define-fun t8 () Real (* t7 r))
+
+(push)
+(assert (check_overflow t8))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t8))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (t8 * r)
+(define-fun t9 () Real (* t8 r))
+
+(push)
+(assert (check_overflow t9))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t9))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (t6 * t9)
+(define-fun t10 () Real (* t6 t9))
+
+(push)
+(assert (check_overflow t10))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t10))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (1.0 - v)
+(define-fun t11 () Real (- 1.0 v))
+
+(push)
+(assert (check_overflow t11))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t11))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (t10 / t11)
+(define-fun t12 () Real (/ t10 t11))
+
+(push)
+(assert (div_invalid t10 t11))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (div_by_zero t10 t11))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (div_overflow t10 t11))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (div_underflow t10 t11))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (t3 - t12)
+(define-fun t13 () Real (- t3 t12))
+
+(push)
+(assert (check_overflow t13))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t13))
+(check-sat)
+(get-model)
+(pop)
+
+;; Check (t13 - 4.5)
+(define-fun t14 () Real (- t13 4.5))
+
+(push)
+(assert (check_overflow t14))
+(check-sat)
+(get-model)
+(pop)
+
+(push)
+(assert (check_underflow t14))
+(check-sat)
+(get-model)
+(pop)
+
