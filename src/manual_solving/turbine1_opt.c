@@ -1,6 +1,9 @@
 #include <math.h>
 
 /*
+ * This is a manual translation of the IR produced when optimizations are
+ * enabled.
+ *
  * Optimizations:
  * 1. (.125 * (3.0 - (2.0 * v))) => (0.375 - (0.25 * v))
  * 2. Reuse (r * r) in (((w * w) * r) * r)
