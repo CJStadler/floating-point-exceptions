@@ -4,6 +4,8 @@ RTLIB := ../report_exceptions_pass/rtlib.bc
 CLANG_FLAGS := -Xclang -disable-O0-optnone
 LLVM_FLAGS := -load $(PASS_LIB) -report_exceptions
 
+default: turbine1_test.out turbine1_test_opt.out
+
 turbine1_test.bc: turbine1_driver.bc $(RTLIB) turbine1.bc
 	llvm-link -o $@ $^
 
@@ -18,10 +20,10 @@ turbine1.ll: turbine1_flat.c
 turbine1_test_opt.bc: turbine1_driver.bc $(RTLIB) turbine1_opt.bc
 	llvm-link -o $@ $^
 
-# Compile to IR and run report_exceptions pass.
 turbine1_opt.ll: turbine1_flat.c
 	$(COMPILER) -S -emit-llvm -g $(CLANG_FLAGS) -ffast-math -o $@ $<
-	opt -S $(LLVM_FLAGS) -instcombine -o $@ $@
+	opt -instcombine -o $@ $@
+	opt -S $(LLVM_FLAGS) -o $@ $@
 
 %.out: %.bc
 	$(COMPILER) -lm -o $@ $<
