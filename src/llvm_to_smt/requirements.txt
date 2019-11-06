@@ -1,0 +1,2 @@
+llvmlite==0.30.0
+z3-solver==4.8.6.0
