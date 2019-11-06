@@ -46,6 +46,12 @@ Int hack:
   - Uses Z3
   - https://github.com/srg-imperial/klee-float
   - https://www.mail-archive.com/klee-dev@imperial.ac.uk/msg02745.html#
+  - Run using docker:
+    ```
+    sudo docker build --tag klee-float .
+    sudo docker run -u 0 -it klee-float
+    ```
+    - Had to comment out tests in `.travis/klee.sh` for it to build.
 
 - KLEE-float from Aachen University
   - Uses Z3
@@ -62,12 +68,14 @@ Int hack:
   but it's not a simple find+replace.
 - `bv2int` and `int2bv`.
 
-- KLEE-float (Imperial) has `z3-query-dump` flag to get smt:
-  `klee -z3-query-dump=query.smt2 foo.bc`
+- KLEE-float (Imperial) has `z3-query-dump` flag to get smt
   - The symbolic vars are represented as bit vectors and converted to float.
 
-- Try the Aachen KLEE-float?
-  - See https://github.com/COMSYS/klee-float/commit/612fcadcbd69f921f5b6bc0577dc5f770cd10489
+```sh
+clang -I ../../include -emit-llvm -c -g -O0 foo.c
+klee -z3-query-dump=query.smt2 foo.bc
+z3 query.smt2
+```
 
 ## Float smt2 -> Real smt2
 
