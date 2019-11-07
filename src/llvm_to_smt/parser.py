@@ -52,3 +52,8 @@ if __name__ == "__main__":
 
     for function in mod.functions:
         print("  " + function.name)
+        for block in function.blocks:
+            for instruction in block.instructions:
+                print("    " + instruction.opcode)
+                for op in instruction.operands:
+                    print("      " + op.__str__())

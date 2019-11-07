@@ -28,3 +28,4 @@ Z3ASTHandle Z3Builder::getTrue() { return Z3ASTHandle(Z3_mk_true(ctx), ctx); }
 
 - Could use http://llvmlite.pydata.org to parse IR, then use Z3's python API to
   build smt.
+- llvmlite doesn't expose operand info? `op.__str__()`

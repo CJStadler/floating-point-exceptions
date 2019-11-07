@@ -1,11 +1,15 @@
 import llvmlite
-from typing import Any, List
+from typing import Any, Iterator
 
 class ValueRef:
   name: str
+  blocks: Iterator[ValueRef]
+  instructions: Iterator[ValueRef]
+  operands: Iterator[ValueRef]
+  opcode: str
 
 class ModuleRef:
-  functions: List[ValueRef]
+  functions: Iterator[ValueRef]
 
   def verify(self) -> None: ...
 
