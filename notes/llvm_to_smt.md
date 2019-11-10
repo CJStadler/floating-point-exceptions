@@ -29,3 +29,9 @@ Z3ASTHandle Z3Builder::getTrue() { return Z3ASTHandle(Z3_mk_true(ctx), ctx); }
 - Could use http://llvmlite.pydata.org to parse IR, then use Z3's python API to
   build smt.
 - llvmlite doesn't expose operand info? `op.__str__()`
+
+## Results
+
+- Checked a few of the solutions and they matched the solutions to my manually
+  written formula. Including the inputs which produced a difference between the
+  unopt and opt.

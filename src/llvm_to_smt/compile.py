@@ -5,10 +5,9 @@ from translate import translate
 def compile(llvm_filename, smt2_filename) -> None:
     llvm_engine = create_execution_engine()
     llvm_ast = parse_file(llvm_filename, llvm_engine)
-    z3_solver = translate(llvm_ast)
-    smt2 = z3_solver.to_smt2()
+    smt2 = translate(llvm_ast)
 
-    with open(smt2_filename) as f:
+    with open(smt2_filename, 'w') as f:
         f.write(smt2)
 
 
