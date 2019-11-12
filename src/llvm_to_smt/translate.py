@@ -178,6 +178,9 @@ def translate(llvm_ast: llvm.ModuleRef) -> str:
     solver = z3.Solver()
 
     (params, conditions) = get_conditions(llvm_ast)
+
+    # Require that each input be less than DBL_MAX.
+    # These will apply to each exception condition.
     for param in params:
         solver.add(abs(param) < DBL_MAX)
 

@@ -35,3 +35,13 @@ Z3ASTHandle Z3Builder::getTrue() { return Z3ASTHandle(Z3_mk_true(ctx), ctx); }
 - Checked a few of the solutions and they matched the solutions to my manually
   written formula. Including the inputs which produced a difference between the
   unopt and opt.
+
+## TODO
+
+- Require inputs be floating point representable.
+- Solve in z3py, don't need to output smt2.
+- Generate candidates using P' in addition to P.
+- Test inputs automatically.
+
+- `math.h`
+- Unroll loops
