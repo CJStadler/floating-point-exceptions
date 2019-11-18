@@ -39,6 +39,11 @@ Z3ASTHandle Z3Builder::getTrue() { return Z3ASTHandle(Z3_mk_true(ctx), ctx); }
 ## TODO
 
 - Require inputs be floating point representable.
+  - This is a "hard" problem. Otherwise we could wrap every Real operation in
+    this check and have an FP solver.
+  - Roundtrip always unknown: https://github.com/Z3Prover/z3/issues/14
+  - Can't solve `(= N (* M (^ 2 E)))`
+
 - Solve in z3py, don't need to output smt2.
 - Generate candidates using P' in addition to P.
 - Test inputs automatically.
