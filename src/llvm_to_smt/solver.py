@@ -12,11 +12,8 @@ DBL_MAX = z3.RealVal("1797693134862315708145274237317043567980705675258449965989
 DBL_MIN = z3.RealVal("0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000222507385850720138309023271733240406421921598046233183055332741688720443481391819585428315901251102056406733973103581100515243416155346010885601238537771882113077799353200233047961014744258363607192156504694250373420837525080665061665815894872049117996859163964850063590877011830487479978088775374994945158045160505091539985658247081864511353793580499211598108576")
 
 
-z3Ref = Union[float, z3.ArithRef]
-
-
 class Constraint:
-    def __init__(self, name: str, instr: llvm.ValueRef, formula: z3.ArithRef):
+    def __init__(self, name: str, instr: str, formula: z3.ArithRef):
         self.name = name
         self.instruction = instr
         self.formula = formula
@@ -24,7 +21,7 @@ class Constraint:
 
 class Solution:
     def __init__(self, sat: str, inputs: Dict[str, str],
-                 constraint: Constraint, smt2: str):
+                 constraint: Constraint):
         self.sat = sat
         self.inputs = inputs
         self.constraint = constraint
@@ -81,8 +78,8 @@ def get_op(opcode: str):
 
 
 def translate_instruction(opcode: str,
-                          param1: z3Ref,
-                          param2: z3Ref) -> z3.ArithRef:
+                          param1: z3.FloatArith,
+                          param2: z3.FloatArith) -> z3.ArithRef:
     """
     Translate an instruction for a binary operation into a z3 expression.
     """
@@ -114,14 +111,14 @@ def solve(solver: z3.Solver, constraint: Constraint) -> Solution:
     return result
 
 
-def abs(value: z3.ArithRef) -> z3.ArithRef:
+def abs(value: z3.FloatArith) -> z3.FloatArith:
     """Take the absolute value of an expression."""
     return z3.If(value >= 0, value, -value)
 
 
 def check_division(instruction: str,
-                   numerator: z3Ref,
-                   denominator: z3Ref) -> List[Constraint]:
+                   numerator: z3.FloatArith,
+                   denominator: z3.FloatArith) -> List[Constraint]:
     """
     Make constraints to check for an exception in a div.
     """
@@ -177,7 +174,7 @@ def get_constraints(llvm_ast: llvm.ModuleRef) \
     """
     vars = {}  # type: Dict[str, z3.ArithRef]
     constraints = []  # type: List[Constraint]
-    params = []  # type: List[z3Ref]
+    params = []  # type: List[z3.ArithRef]
 
     first = True
     for function in llvm_ast.functions:
@@ -204,12 +201,12 @@ def get_constraints(llvm_ast: llvm.ModuleRef) \
                 (name, param1, param2) = parse_instruction(instr)
 
                 if isinstance(param1, str):
-                    p1_ref = vars[param1]  # type: z3Ref
+                    p1_ref = vars[param1]  # type: z3.FloatArith
                 else:
                     p1_ref = param1
 
                 if isinstance(param2, str):
-                    p2_ref = vars[param2]  # type: z3Ref
+                    p2_ref = vars[param2]  # type: z3.FloatArith
                 else:
                     p2_ref = param2
 
