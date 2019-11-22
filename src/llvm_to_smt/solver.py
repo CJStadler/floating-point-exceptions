@@ -11,6 +11,8 @@ ARG_REGEX = re.compile(r"(%s)|(%s)" % (VAR_REGEX.pattern, NUM_REGEX.pattern))
 DBL_MAX = z3.RealVal("179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368.0")
 DBL_MIN = z3.RealVal("0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000222507385850720138309023271733240406421921598046233183055332741688720443481391819585428315901251102056406733973103581100515243416155346010885601238537771882113077799353200233047961014744258363607192156504694250373420837525080665061665815894872049117996859163964850063590877011830487479978088775374994945158045160505091539985658247081864511353793580499211598108576")
 
+FloatArith = Union[float, z3.ArithRef]
+
 
 class Constraint:
     def __init__(self, name: str, instr: str, formula: z3.ArithRef):
@@ -78,8 +80,8 @@ def get_op(opcode: str):
 
 
 def translate_instruction(opcode: str,
-                          param1: z3.FloatArith,
-                          param2: z3.FloatArith) -> z3.ArithRef:
+                          param1: FloatArith,
+                          param2: FloatArith) -> z3.ArithRef:
     """
     Translate an instruction for a binary operation into a z3 expression.
     """
@@ -111,14 +113,14 @@ def solve(solver: z3.Solver, constraint: Constraint) -> Solution:
     return result
 
 
-def abs(value: z3.FloatArith) -> z3.FloatArith:
+def abs(value: FloatArith) -> FloatArith:
     """Take the absolute value of an expression."""
     return z3.If(value >= 0, value, -value)
 
 
 def check_division(instruction: str,
-                   numerator: z3.FloatArith,
-                   denominator: z3.FloatArith) -> List[Constraint]:
+                   numerator: FloatArith,
+                   denominator: FloatArith) -> List[Constraint]:
     """
     Make constraints to check for an exception in a div.
     """
@@ -201,12 +203,12 @@ def get_constraints(llvm_ast: llvm.ModuleRef) \
                 (name, param1, param2) = parse_instruction(instr)
 
                 if isinstance(param1, str):
-                    p1_ref = vars[param1]  # type: z3.FloatArith
+                    p1_ref = vars[param1]  # type: FloatArith
                 else:
                     p1_ref = param1
 
                 if isinstance(param2, str):
-                    p2_ref = vars[param2]  # type: z3.FloatArith
+                    p2_ref = vars[param2]  # type: FloatArith
                 else:
                     p2_ref = param2
 
@@ -241,15 +243,19 @@ def find_inputs(llvm_ast: llvm.ModuleRef) -> List[List[str]]:
         print("Checking for %s in" % solution.constraint.name)
         print(solution.constraint.instruction)
 
-        param_vals = []
+        if solution.sat == "sat":
+            param_vals = []
 
-        for param in params:
-            param_name = str(param)
-            value = solution.inputs[param_name]
-            print("%s = %s" % (param_name, value))
-            param_vals.append(value)
+            for param in params:
+                param_name = str(param)
+                value = solution.inputs[param_name]
+                print("%s = %s" % (param_name, value))
+                param_vals.append(value)
+
+            inputs.append(param_vals)
+        else:
+            print(solution.sat)
 
         print()
-        inputs.append(param_vals)
 
     return inputs
