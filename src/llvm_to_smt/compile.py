@@ -1,14 +1,17 @@
 from parser import create_execution_engine, parse_file
-from translate import translate
+from solver import find_inputs
 
 
-def compile(llvm_filename, smt2_filename) -> None:
+def compile(llvm_filename, inputs_filename) -> None:
     llvm_engine = create_execution_engine()
     llvm_ast = parse_file(llvm_filename, llvm_engine)
-    smt2 = translate(llvm_ast)
+    inputs = find_inputs(llvm_ast)
+    input_strs = (" ".join(params) for params in inputs)
 
-    with open(smt2_filename, 'w') as f:
-        f.write(smt2)
+    with open(inputs_filename, "w") as f:
+        for input in input_strs:
+            f.write(input)
+            f.write("\n")
 
 
 if __name__ == "__main__":

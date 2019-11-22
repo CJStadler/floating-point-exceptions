@@ -12,7 +12,7 @@ DBL_MAX = z3.RealVal("1797693134862315708145274237317043567980705675258449965989
 DBL_MIN = z3.RealVal("0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000222507385850720138309023271733240406421921598046233183055332741688720443481391819585428315901251102056406733973103581100515243416155346010885601238537771882113077799353200233047961014744258363607192156504694250373420837525080665061665815894872049117996859163964850063590877011830487479978088775374994945158045160505091539985658247081864511353793580499211598108576")
 
 
-class Condition:
+class Constraint:
     def __init__(self, name: str, instr: llvm.ValueRef, formula: z3.ArithRef):
         self.name = name
         self.instruction = instr
@@ -21,11 +21,10 @@ class Condition:
 
 class Solution:
     def __init__(self, sat: str, inputs: Dict[str, str],
-                 condition: Condition, smt2: str):
+                 constraint: Constraint, smt2: str):
         self.sat = sat
         self.inputs = inputs
-        self.condition = condition
-        self.smt2 = smt2
+        self.constraint = constraint
 
 
 def parse_arg(arg: str) -> str:
@@ -87,20 +86,25 @@ def translate_instruction(opcode: str,
     return op(param1, param2)
 
 
-def solve(solver: z3.Solver, condition: Condition) -> Solution:
+def format_solution(solution: z3.ArithRef) -> str:
+    decimal_str = solution.as_decimal(20)
+    # Z3 puts a question mark at the end if the decimal is not exact, so we
+    # strip it.
+    return decimal_str.rstrip("?")
+
+
+def solve(solver: z3.Solver, constraint: Constraint) -> Solution:
     solver.push()
-    solver.add(condition.formula)
+    solver.add(constraint.formula)
 
     sat = str(solver.check())
     if sat == "sat":
         model = solver.model()
-        inputs = {str(n): model[n].as_decimal(20) for n in model.decls()}
+        inputs = {str(n): format_solution(model[n]) for n in model.decls()}
     else:
         inputs = {}
 
-    formula = solver.to_smt2()
-    wrapped = "(push)\n%s(get-model)\n(pop)\n" % formula
-    result = Solution(sat, inputs, condition, wrapped)
+    result = Solution(sat, inputs, constraint)
 
     solver.pop()
     return result
@@ -113,49 +117,50 @@ def abs(value: z3.ArithRef) -> z3.ArithRef:
 
 def check_division(instruction: str,
                    numerator: z3.ArithRef,
-                   denominator: z3.ArithRef) -> List[Condition]:
+                   denominator: z3.ArithRef) -> List[Constraint]:
     """
-    Make conditions to check for an exception in a div.
+    Make constraints to check for an exception in a div.
     """
     denom_zero = denominator == 0
-    invalid = Condition("invalid", instruction,
+    invalid = Constraint("invalid", instruction,
                         z3.And(numerator == 0, denom_zero))
-    div_by_zero = Condition("div_by_zero", instruction,
+    div_by_zero = Constraint("div_by_zero", instruction,
                             z3.And(numerator != 0, denom_zero))
-    overflow = Condition("overflow", instruction,
+    overflow = Constraint("overflow", instruction,
                          abs(numerator) > (abs(denominator) * DBL_MAX))
     underflow_formula = z3.And(abs(numerator) > 0,
                                abs(numerator) > (abs(denominator) * DBL_MAX))
-    underflow = Condition("underflow", instruction, underflow_formula)
+    underflow = Constraint("underflow", instruction, underflow_formula)
 
-    conditions = [
+    constraints = [
         invalid,
         div_by_zero,
         overflow,
         underflow
     ]
-    return conditions
+    return constraints
 
 
-def check_non_div(instruction: str, result: z3.ArithRef) -> List[Condition]:
+def check_non_div(instruction: str, result: z3.ArithRef) -> List[Constraint]:
     """
-    Make conditions to check for an exception in a mul/add/sub.
+    Make constraints to check for an exception in a mul/add/sub.
     """
     absv = abs(result)
-    overflow = Condition("overflow", instruction, absv > DBL_MAX)
-    underflow = Condition("underflow", instruction,
+    overflow = Constraint("overflow", instruction, absv > DBL_MAX)
+    underflow = Constraint("underflow", instruction,
                           z3.And(absv > 0, absv < DBL_MIN))
-    conditions = [overflow, underflow]
-    return conditions
+    constraints = [overflow, underflow]
+    return constraints
 
 
-def get_conditions(llvm_ast: llvm.ModuleRef) -> List[Condition]:
+def get_constraints(llvm_ast: llvm.ModuleRef) \
+        -> Tuple[List[z3.ArithRef], List[Constraint]]:
     """
-    Get a list of z3 conditions. Each represents conditions on inputs which
+    Get a list of z3 constraints. Each represents constraints on inputs which
     should trigger an exception somewhere in the program.
     """
     vars = {}
-    conditions = []
+    constraints = []  # type: List[Constraint]
     params = []
 
     first = True
@@ -192,42 +197,42 @@ def get_conditions(llvm_ast: llvm.ModuleRef) -> List[Condition]:
                 vars[name] = result
 
                 if opcode == 'fdiv':
-                    conditions += check_division(instr, param1, param2)
+                    constraints += check_division(instr, param1, param2)
                 else:
-                    conditions += check_non_div(instr, result)
+                    constraints += check_non_div(instr, result)
 
-    return (params, conditions)
+    return (params, constraints)
 
 
-def translate(llvm_ast: llvm.ModuleRef) -> str:
+def find_inputs(llvm_ast: llvm.ModuleRef) -> List[List[str]]:
     """
-    Construct an SMT2 formula from an llvm AST.
+    Find inputs that should trigger exceptions.
     """
+    inputs = []
     solver = z3.Solver()
 
-    (params, conditions) = get_conditions(llvm_ast)
+    (params, constraints) = get_constraints(llvm_ast)
 
     # Require that each input be less than DBL_MAX.
-    # These will apply to each exception condition.
+    # These will apply to each exception constraint.
     for param in params:
         solver.add(abs(param) < DBL_MAX)
 
-    solutions = (solve(solver, condition) for condition in conditions)
-    smt2s = []
+    solutions = (solve(solver, constraint) for constraint in constraints)
 
     for solution in solutions:
-        print("Checking for %s in" % solution.condition.name)
-        print(solution.condition.instruction)
+        print("Checking for %s in" % solution.constraint.name)
+        print(solution.constraint.instruction)
 
-        for name, value in solution.inputs.items():
-            print("%s = %s" % (name, value))
+        param_vals = []
+
+        for param in params:
+            param_name = str(param)
+            value = solution.inputs[param_name]
+            print("%s = %s" % (param_name, value))
+            param_vals.append(value)
+
         print()
+        inputs.append(param_vals)
 
-        smt2s.append(solution.smt2)
-
-    smt2 = "\n".join(smt2s)
-    smt2 = "(set-option :pp.decimal true)\n" + \
-           "(set-option :pp.decimal_precision 20)\n" + \
-           smt2
-
-    return smt2
+    return inputs
