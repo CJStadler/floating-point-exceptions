@@ -2,7 +2,7 @@
 #include <float.h>
 #include <fenv.h>
 
-#include "../fp_exception.hpp"
+#include "fp_exception.hpp"
 
 /* Runtime library */
 
@@ -15,22 +15,10 @@ void report_exception(ExceptionType type, int lineno) {
 
   ex_trace.push_back(ex);
 
-  switch (type) {
-    case overflow:
-      fprintf(stderr, " %s", "Overflow");
-      break;
-    case underflow:
-      fprintf(stderr, " %s", "Underflow");
-      break;
-    case div_by_zero:
-      fprintf(stderr, " %s", "DivByZero");
-      break;
-    case invalid:
-      fprintf(stderr, " %s", "Invalid");
-      break;
-  }
+  fprintf(stderr, " %s", type_string(type).c_str());
 }
 
+extern "C" void check_for_exception(int);
 void check_for_exception(int lineno) {
   fprintf(stderr, "Checking for exceptions on line %i:", lineno);
   int raised =

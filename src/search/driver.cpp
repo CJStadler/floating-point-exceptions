@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 
-#include "../fp_exception.hpp"
+#include "../report_exceptions_pass/fp_exception.hpp"
 
 // After P/P' is executed the trace will be left in this var.
 extern ExceptionTrace ex_trace;
@@ -42,6 +42,8 @@ void test_inputs(std::string input_str) {
   p_opt(inputs);
   ExceptionTrace trace_unopt = ex_trace;
 
+  print_trace(trace_opt);
+  print_trace(trace_unopt);
   if (trace_opt != trace_unopt) {
     printf("DIFF: %s", input_str.c_str());
   }
@@ -53,7 +55,7 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  char* inputs_filename = argv[0];
+  char* inputs_filename = argv[1];
   std::ifstream inputs_file(inputs_filename);
   std::string line;
   while (std::getline(inputs_file, line)) {

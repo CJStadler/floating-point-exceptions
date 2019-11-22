@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <float.h>
 
-#include "exceptions.h"
-
 double over(double x) {
   x *= 2;
   x *= 2;
@@ -38,6 +36,5 @@ int main(int argc, char *argv[]) {
   printf("%f\n", div_by_zero(z));
   printf("%f\n", invalid(z));
   printf("%f\n", over(x));
-  printf("overflows=%i\n", overflows);
   return 0;
 }

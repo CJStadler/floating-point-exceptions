@@ -6,29 +6,29 @@ OPT_FLAGS := -load build/report_exceptions/libReportExceptions.so -report_except
 build/report_exceptions/libReportExceptions.so: report_exceptions/ReportExceptions.cpp
 	$(MAKE) -C build
 
-rtlib.bc: rtlib.ll
-	opt -o $@ $<
-
-rtlib.ll: rtlib.cpp
-	$(CPPC) -S -emit-llvm $<
-
 example.out: example.o
-	$(CC) -lm -o $@ $<
+	$(CPPC) -lm -o $@ $<
 
 example.o: linked.bc
 	llc --filetype=obj -o $@ $<
 
-linked.bc: rtlib.bc example.bc
+linked.bc: rtlib.bc example.bc fp_exception.bc
 	llvm-link -o $@ $^
 
 example.bc: example-opt.ll
 	opt -o $@ $<
 
-example-opt.ll: example.ll build/report_exceptions/libReportExceptions.so
+example-opt.ll: example.ll # build/report_exceptions/libReportExceptions.so
 	opt -S $(OPT_FLAGS) -o $@ $<
 
 example.ll: example.c
 	$(CC) -S -emit-llvm -g $(CLANG_FLAGS) $<
+
+%.ll: %.cpp
+	$(CPPC) -S -emit-llvm $<
+
+%.bc: %.ll
+	opt -o $@ $<
 
 .PHONY: clean
 clean:
