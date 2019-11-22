@@ -1,9 +1,19 @@
-COMPILER := clang
+CC := clang
+CPPC := clang++
 CLANG_FLAGS := -Xclang -disable-O0-optnone -ffast-math
 OPT_FLAGS := -load build/report_exceptions/libReportExceptions.so -report_exceptions -instcombine
 
+build/report_exceptions/libReportExceptions.so: report_exceptions/ReportExceptions.cpp
+	$(MAKE) -C build
+
+rtlib.bc: rtlib.ll
+	opt -o $@ $<
+
+rtlib.ll: rtlib.cpp
+	$(CPPC) -S -emit-llvm $<
+
 example.out: example.o
-	$(COMPILER) -lm -o $@ $<
+	$(CC) -lm -o $@ $<
 
 example.o: linked.bc
 	llc --filetype=obj -o $@ $<
@@ -11,23 +21,14 @@ example.o: linked.bc
 linked.bc: rtlib.bc example.bc
 	llvm-link -o $@ $^
 
-rtlib.bc: rtlib.ll
-	opt -o $@ $<
-
 example.bc: example-opt.ll
 	opt -o $@ $<
-
-rtlib.ll: rtlib.c
-	$(COMPILER) -S -emit-llvm $<
 
 example-opt.ll: example.ll build/report_exceptions/libReportExceptions.so
 	opt -S $(OPT_FLAGS) -o $@ $<
 
 example.ll: example.c
-	$(COMPILER) -S -emit-llvm -g $(CLANG_FLAGS) $<
-
-build/report_exceptions/libReportExceptions.so: report_exceptions/ReportExceptions.cpp
-	$(MAKE) -C build
+	$(CC) -S -emit-llvm -g $(CLANG_FLAGS) $<
 
 .PHONY: clean
 clean:

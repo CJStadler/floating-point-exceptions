@@ -11,7 +11,7 @@
 #include "../fp_exception.hpp"
 
 // After P/P' is executed the trace will be left in this var.
-extern ExceptionTrace last_trace;
+extern ExceptionTrace ex_trace;
 
 typedef std::vector<double> input_list;
 
@@ -34,13 +34,13 @@ input_list parse_inputs(std::string input_str) {
 
 void test_inputs(std::string input_str) {
   input_list inputs = parse_inputs(input_str);
-  last_trace.clear();
+  ex_trace.clear();
   p_unopt(inputs);
-  ExceptionTrace trace_opt = last_trace;
+  ExceptionTrace trace_opt = ex_trace;
 
-  last_trace.clear();
+  ex_trace.clear();
   p_opt(inputs);
-  ExceptionTrace trace_unopt = last_trace;
+  ExceptionTrace trace_unopt = ex_trace;
 
   if (trace_opt != trace_unopt) {
     printf("DIFF: %s", input_str.c_str());
