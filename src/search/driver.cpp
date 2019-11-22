@@ -4,18 +4,59 @@
 #include <fenv.h>
 #include <random>
 #include <vector>
+#include <sstream>
+#include <string>
+#include <fstream>
 
 #include "../fp_exception.hpp"
 
+// After P/P' is executed the trace will be left in this var.
 extern ExceptionTrace last_trace;
 
+typedef std::vector<double> input_list;
+
 // Interfaces for P and P'
-double p_unopt(std::vector<double>* args);
-double p_opt(std::vector<double>* args);
+double p_unopt(input_list inputs);
+double p_opt(input_list inputs);
+
+input_list parse_inputs(std::string input_str) {
+  input_list inputs;
+
+  double input;
+  std::istringstream stream(input_str);
+
+  while (stream >> input) {
+    inputs.push_back(input);
+  }
+
+  return inputs;
+}
+
+void test_inputs(std::string input_str) {
+  input_list inputs = parse_inputs(input_str);
+  last_trace.clear();
+  p_unopt(inputs);
+  ExceptionTrace trace_opt = last_trace;
+
+  last_trace.clear();
+  p_opt(inputs);
+  ExceptionTrace trace_unopt = last_trace;
+
+  if (trace_opt != trace_unopt) {
+    printf("DIFF: %s", input_str.c_str());
+  }
+}
 
 int main(int argc, char* argv[]) {
-  double _r1 = p_unopt(input);
-  ExceptionTrace trace_opt = last_trace;
-  double _r2 = p_opt(input);
-  ExceptionTrace trace_unopt = last_trace;
+  if (argc < 1) {
+    puts("Inputs filename required");
+    exit(EXIT_FAILURE);
+  }
+
+  char* inputs_filename = argv[0];
+  std::ifstream inputs_file(inputs_filename);
+  std::string line;
+  while (std::getline(inputs_file, line)) {
+    test_inputs(line);
+  }
 }
