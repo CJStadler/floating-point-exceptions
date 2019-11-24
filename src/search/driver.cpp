@@ -35,17 +35,21 @@ input_list parse_inputs(std::string input_str) {
 void test_inputs(std::string input_str) {
   input_list inputs = parse_inputs(input_str);
   ex_trace.clear();
+  fprintf(stderr, "Calling unopt\n");
   p_unopt(inputs);
   ExceptionTrace trace_opt = ex_trace;
 
   ex_trace.clear();
+  fprintf(stderr, "Calling opt\n");
   p_opt(inputs);
   ExceptionTrace trace_unopt = ex_trace;
 
-  print_trace(trace_opt);
-  print_trace(trace_unopt);
   if (trace_opt != trace_unopt) {
-    printf("DIFF: %s", input_str.c_str());
+    printf("INPUT\n%s\n", input_str.c_str());
+    puts("UNOPT");
+    print_trace(trace_unopt);
+    puts("OPT");
+    print_trace(trace_opt);
   }
 }
 
