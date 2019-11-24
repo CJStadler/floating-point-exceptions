@@ -36,19 +36,21 @@ void test_inputs(std::string input_str) {
   input_list inputs = parse_inputs(input_str);
   ex_trace.clear();
   fprintf(stderr, "Calling unopt\n");
-  p_unopt(inputs);
+  double r_unopt = p_unopt(inputs);
   ExceptionTrace trace_opt = ex_trace;
 
   ex_trace.clear();
   fprintf(stderr, "Calling opt\n");
-  p_opt(inputs);
+  double r_opt = p_opt(inputs);
   ExceptionTrace trace_unopt = ex_trace;
 
   if (trace_opt != trace_unopt) {
     printf("INPUT\n%s\n", input_str.c_str());
     puts("UNOPT");
+    printf("%.20e\n", r_unopt);
     print_trace(trace_unopt);
     puts("OPT");
+    printf("%.20e\n", r_opt);
     print_trace(trace_opt);
   }
 }
