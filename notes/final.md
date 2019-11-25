@@ -16,6 +16,16 @@
 
 - Use a `vector<Exception>` to represent trace.
 
+- Range: iterations in each direction.
+  - Range 0 means just test the given input.
+  - E.g. Range 1 means increment up once and down once.
+
 ## Results
-- Searching with range 2 finds 17 inputs that produce different traces.
-  - Out of 22 inputs.
+
+- turbine1
+  - 22 inputs from P
+  - range -> diff-producing inputs
+    - 0 -> 4
+    - 1 -> 13
+    - 2 -> 13
+    - 10 -> 13

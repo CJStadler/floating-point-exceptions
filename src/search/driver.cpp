@@ -12,7 +12,7 @@
 
 #include "../report_exceptions_pass/fp_exception.hpp"
 
-#define SEARCH_RANGE 3
+#define SEARCH_RANGE 10
 
 // After P/P' is executed the trace will be left in this var.
 extern ExceptionTrace ex_trace;
@@ -36,90 +36,82 @@ input_list parse_inputs(std::string input_str) {
   return inputs;
 }
 
+void print_inputs(FILE* file, input_list inputs) {
+  uint i;
+  for (i = 0; i < inputs.size(); i++) {
+    if (i > 0) {
+      fprintf(file, " ");
+    }
+    fprintf(file, "%.20e", inputs[i]);
+  }
+  fprintf(file, "\n");
+}
+
 bool test_inputs(input_list inputs) {
+  fprintf(stderr, "Testing inputs\n");
+  print_inputs(stderr, inputs);
+
   ex_trace.clear();
   fprintf(stderr, "Calling unopt\n");
   double r_unopt = p_unopt(inputs);
+  fprintf(stderr, "%.20e\n", r_unopt);
   ExceptionTrace trace_opt = ex_trace;
 
   ex_trace.clear();
   fprintf(stderr, "Calling opt\n");
   double r_opt = p_opt(inputs);
+  fprintf(stderr, "%.20e\n", r_opt);
   ExceptionTrace trace_unopt = ex_trace;
 
-  if (trace_opt != trace_unopt) {
-    puts("INPUTS");
-    uint i;
-    for (i = 0; i < inputs.size(); i++) {
-      printf("%.20f ", inputs[i]);
-    }
-    puts("");
-    puts("UNOPT");
-    printf("%.20e\n", r_unopt);
-    print_trace(trace_unopt);
-    puts("OPT");
-    printf("%.20e\n", r_opt);
-    print_trace(trace_opt);
+  bool diff = trace_opt != trace_unopt;
 
-    return true;
+  if (diff) {
+    print_inputs(stdout, inputs);
+  }
+
+  return diff;
+}
+
+double incr(double input, double dir) {
+  return nextafter(input, dir);
+}
+
+bool search_arg(input_list inputs, uint arg_id) {
+  if (arg_id == inputs.size()) {
+    // Base case: test the input.
+    return test_inputs(inputs);
   } else {
-    return false;
-  }
-}
+    input_list high_inputs = inputs;
+    input_list low_inputs = inputs;
 
-bool search_arg(input_list inputs, int arg_id) {
-  input_list high_inputs = inputs;
-  input_list low_inputs = inputs;
+    bool found = false;
+    uint i;
+    for (i = 0; i < 1 + (SEARCH_RANGE * 2) && !found; i++) {
+      // Alternate searching up and down.
+      bool up = (i % 2) == 0;
 
-  // Increment the low input so that we don't test the starting inputs twice.
-  low_inputs[arg_id] = nextafter(low_inputs[arg_id], -DBL_MAX);
+      /* In the up case we test then increment, so that we start with the given
+       * inputs. In the down case we first increment so that we don't re-test
+       * the given inputs. */
+      if (up) {
+        found = search_arg(high_inputs, arg_id + 1);
 
-  bool found = false;
-  bool up = true; // Direction to search in on this iteration.
-  int i;
-  for (i = 0; i < SEARCH_RANGE && !found; i++) {
-    if (up) {
-      found = test_inputs(high_inputs);
-
-      if (!found) {
-        // Increment the other inputs.
-        uint j;
-        for (j = arg_id + 1; j < inputs.size() && !found; j++) {
-          found = search_arg(high_inputs, j);
-        }
-
-        // Increment this input.
+        // Increment this arg.
         if (!found) {
-          high_inputs[arg_id] = nextafter(high_inputs[arg_id], DBL_MAX);
+          high_inputs[arg_id] = incr(high_inputs[arg_id], DBL_MAX);
         }
-      }
-    } else {
-      found = test_inputs(low_inputs);
-
-      if (!found) {
-        // Increment the other inputs.
-        uint j;
-        for (j = arg_id + 1; j < inputs.size() && !found; j++) {
-          found = search_arg(low_inputs, j);
-        }
-
-        // Increment this input.
+      } else {
+        // Decrement this arg.
         if (!found) {
-          low_inputs[arg_id] = nextafter(low_inputs[arg_id], -DBL_MAX);
+          low_inputs[arg_id] = incr(low_inputs[arg_id], -DBL_MAX);
         }
+
+        found = search_arg(low_inputs, arg_id + 1);
       }
     }
 
-    // Switch the direction
-    up = !up;
+    return found;
   }
-
-  return found;
-}
-
-void search_around(std::string input_str) {
-  input_list inputs = parse_inputs(input_str);
-  search_arg(inputs, 0);
 }
 
 int main(int argc, char* argv[]) {
@@ -132,6 +124,12 @@ int main(int argc, char* argv[]) {
   std::ifstream inputs_file(inputs_filename);
   std::string line;
   while (std::getline(inputs_file, line)) {
-    search_around(line);
+    input_list inputs = parse_inputs(line);
+    bool found = search_arg(inputs, 0);
+
+    if (found) {
+      fprintf(stderr, "Found diff while searching\n");
+      print_inputs(stderr, inputs);
+    }
   }
 }
