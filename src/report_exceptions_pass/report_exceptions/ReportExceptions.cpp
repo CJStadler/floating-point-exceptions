@@ -36,10 +36,14 @@ namespace {
     virtual bool runOnFunction(Function &func) {
       // Get the function to call from our runtime library.
       LLVMContext &Ctx = func.getContext();
-      std::vector<Type*> paramTypes = {Type::getInt32Ty(Ctx)};
+      std::vector<Type*> checkParamTypes = {Type::getInt32Ty(Ctx)};
       Type *retType = Type::getVoidTy(Ctx);
-      FunctionType *checkFuncType = FunctionType::get(retType, paramTypes, false);
+      FunctionType *checkFuncType = FunctionType::get(retType, checkParamTypes, false);
       Constant *checkFunc = func.getParent()->getOrInsertFunction("check_for_exception", checkFuncType);
+
+      std::vector<Type*> clearParamTypes;
+      FunctionType *clearFuncType = FunctionType::get(retType, clearParamTypes, false);
+      Constant *clearFunc = func.getParent()->getOrInsertFunction("clear_exceptions", clearFuncType);
 
       bool changed = false;
 
@@ -52,12 +56,20 @@ namespace {
             llvm::Constant *line_value = llvm::ConstantInt::get(i32_type, line, true);
 
             // Insert *after* `op`.
-            IRBuilder<> builder(&op);
-            builder.SetInsertPoint(&block, ++builder.GetInsertPoint());
+            IRBuilder<> checkBuilder(&op);
+            checkBuilder.SetInsertPoint(&block, ++checkBuilder.GetInsertPoint());
 
             // Insert a call to our function.
-            Value* args[] = {line_value};
-            builder.CreateCall(checkFunc, args);
+            Value* checkArgs[] = {line_value};
+            checkBuilder.CreateCall(checkFunc, checkArgs);
+
+            // Insert *before* `op`.
+            IRBuilder<> clearBuilder(&op);
+            clearBuilder.SetInsertPoint(&block, clearBuilder.GetInsertPoint());
+
+            // Insert a call to our function.
+            std::vector<Value*> clearArgs;
+            clearBuilder.CreateCall(clearFunc, clearArgs);
 
             changed = true;
           }

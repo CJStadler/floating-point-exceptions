@@ -41,6 +41,9 @@ void check_for_exception(int lineno) {
   }
 
   fprintf(stderr, "\n");
-  feclearexcept(FE_ALL_EXCEPT);
 }
 
+extern "C" void clear_exceptions();
+void clear_exceptions() {
+  feclearexcept(FE_ALL_EXCEPT);
+}
