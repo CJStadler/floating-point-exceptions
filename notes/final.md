@@ -58,3 +58,17 @@
 
 - carbongas
   - IR has a hex literal, need to work on parsing.
+
+## TODO
+
+- For inputs from P and P'
+  - How many constraints?
+  - How many SAT?
+  - How many had an exception when tested?
+  - How many diffs?
+  - For each diff give the two traces
+
+- Compress log: just input and sequence
+- Number of satisfying assignments different?
+
+- Write down high level algorithm.
