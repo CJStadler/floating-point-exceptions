@@ -12,7 +12,7 @@
 
 #include "../report_exceptions_pass/fp_exception.hpp"
 
-#define SEARCH_RANGE 10
+#define SEARCH_RANGE 0
 
 // After P/P' is executed the trace will be left in this var.
 extern ExceptionTrace ex_trace;
