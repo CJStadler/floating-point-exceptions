@@ -15,16 +15,18 @@
 - coshestonc4
   - straight line
   - only float
+  - Uses `exp` from math.h, which we should be able to approximate.
 - jetengine
   - straight line
   - only float
+
+## Math.h
+
 - precess
   - straight line
   - only float
   - macro constants
-
-## Math.h
-
+  - requires `math.h`
 - invarplanelat
   - straight line
   - only float
