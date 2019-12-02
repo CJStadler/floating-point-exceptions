@@ -1,3 +1,4 @@
+import struct
 import operator
 import llvmlite.binding as llvm
 import z3
@@ -7,7 +8,10 @@ from typing import Tuple, List, Dict, Union, Set
 
 VAR_REGEX = re.compile(r"%[a-zA-Z0-9]+")
 NUM_REGEX = re.compile(r"[0-9]+.[0-9]+e(\+|\-)[0-9]+")
-ARG_REGEX = re.compile(r"(%s)|(%s)" % (VAR_REGEX.pattern, NUM_REGEX.pattern))
+HEX_REGEX = re.compile(r"0x[0-9a-fA-F]+")
+ARG_REGEX = re.compile(r"(%s)|(%s)|(%s)" % (VAR_REGEX.pattern,
+                                            NUM_REGEX.pattern,
+                                            HEX_REGEX.pattern))
 
 DBL_MAX = z3.RealVal("179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368.0") # noqa
 DBL_MIN = z3.RealVal("0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000222507385850720138309023271733240406421921598046233183055332741688720443481391819585428315901251102056406733973103581100515243416155346010885601238537771882113077799353200233047961014744258363607192156504694250373420837525080665061665815894872049117996859163964850063590877011830487479978088775374994945158045160505091539985658247081864511353793580499211598108576") # noqa
@@ -38,16 +42,21 @@ def parse_arg(arg: str) -> str:
     return name
 
 
-def parse_param(match: Tuple[str, str, str]) -> Union[str, float]:
+def parse_param(match: Tuple[str, str, str, str]) -> Union[str, float]:
     """
-    Our regex has 3 groups so we find the one that matched. If it was one of
-    the number groups then parse it as a float.
+    Our regex has 4 groups so we find the one that matched and parse
+    appropriately.
     """
-    (var, num1, num2) = match
+    (var, num1, num2, hex) = match
     if num1:
         return float(num1)
     elif num2:
         return float(num2)
+    elif hex:
+        raise RuntimeError("HEX")
+        raw = bytes.fromhex(hex[2:])
+        (parsed,) = struct.unpack('d', raw)
+        return parsed
     else:
         return var
 
@@ -62,7 +71,7 @@ def parse_instruction(instruction: str) \
     if len(matches) != 3:
         raise RuntimeError("Error parsing \"%s\"" % instruction)
 
-    ((result, _, _), p1, p2) = matches
+    ((result, _, _, _), p1, p2) = matches
 
     return (result, parse_param(p1), parse_param(p2))
 
