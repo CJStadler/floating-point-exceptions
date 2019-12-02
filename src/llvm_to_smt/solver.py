@@ -233,7 +233,7 @@ def get_constraints(llvm_ast: llvm.ModuleRef) \
     return (params, constraints)
 
 
-def find_inputs(llvm_ast: llvm.ModuleRef) -> Set[Tuple[str, ...]]:
+def find_inputs(llvm_ast: llvm.ModuleRef) -> Tuple[Set[Tuple[str, ...]], int]:
     """
     Find inputs that should trigger exceptions.
     """
@@ -268,4 +268,4 @@ def find_inputs(llvm_ast: llvm.ModuleRef) -> Set[Tuple[str, ...]]:
 
         print()
 
-    return inputs
+    return (inputs, len(constraints))
