@@ -15,4 +15,4 @@ typedef std::vector<FPException> ExceptionTrace;
 
 bool operator==(const FPException& lhs, const FPException& rhs);
 
-void print_trace(ExceptionTrace trace);
+void print_trace(FILE* file, ExceptionTrace trace);

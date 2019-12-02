@@ -29,11 +29,12 @@ bool operator==(const FPException& lhs, const FPException& rhs)
     return (lhs.type == rhs.type) && (lhs.lineno == rhs.lineno);
 }
 
-void print_trace(ExceptionTrace trace) {
+void print_trace(FILE* file, ExceptionTrace trace) {
   int len = trace.size();
   for(int i = 0; i < len; i++) {
     FPException ex = trace.at(i);
 
-    printf("line %d: %s\n", ex.lineno, type_string(ex.type).c_str());
+    fprintf(file, "%s ", type_string(ex.type).c_str());
   }
+  fprintf(file, "\n");
 }
