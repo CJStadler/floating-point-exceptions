@@ -72,3 +72,16 @@
 - Number of satisfying assignments different?
 
 - Write down high level algorithm.
+
+- Support math functions
+
+## 12/3
+
+- Loop unrolling (use LLVM?)
+- Combine inputs from P and P'
+  - Compare constraints so that you don't solve the same constraint twice?
+- Write up in Latex
+  - Implementation
+  - Results
+
+- Replace math functions with uninterpreted functions.
