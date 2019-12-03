@@ -30,6 +30,9 @@ fun find_inputs(llvm):
   return inputs
 
 fun search(inputs, P, P'):
+  P = instrument P to check for FP exceptions
+  P' = instrument P' to check for FP exceptions
+
   for input in inputs:
     for input in nearby_fp_numbers(input):
       p_trace = exec(P, input)
