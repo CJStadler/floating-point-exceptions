@@ -1,0 +1,37 @@
+Input: -1.25000000000000000000e-01 -5.00000000000000000000e-01 -1.48219693752373963253e-323
+P:  Underflow DivByZero Underflow Underflow 
+P': Underflow DivByZero Underflow 
+Input: 7.98974726605473692417e+307 -3.00000000000000088818e+00 9.99999999999999666933e-01
+P:  
+P': Overflow 
+Input: 1.25000000000000000000e-01 5.00000000000000000000e-01 -1.48219693752373963253e-323
+P:  Underflow DivByZero Underflow Underflow 
+P': Underflow DivByZero Underflow 
+Input: 1.50000000000000000000e+00 1.79769313486231570815e+308 -4.94065645841246544177e-324
+P:  Underflow DivByZero Overflow Invalid 
+P': Underflow DivByZero Overflow Underflow Invalid 
+Input: -2.50000000000000000000e-01 -1.25000000000000000000e-01 1.34078079299425970996e+154
+P:  Overflow 
+P': Overflow Overflow 
+Input: -1.00000000000000000000e+00 1.79769313486231570815e+308 -4.94065645841246544177e-324
+P:  Underflow DivByZero Overflow Invalid 
+P': Underflow DivByZero Overflow Underflow Invalid 
+Input: 1.59242021634862570474e+308 1.25000000000000000000e-01 -1.70000000000000000000e+01
+P:  Overflow 
+P': 
+Input: -1.79769313486231570815e+308 -4.94065645841246544177e-324 5.80295343933555531586e+307
+P:  Overflow Overflow Underflow Invalid 
+P': Overflow Underflow Overflow Invalid 
+Input: 1.00000000000000000000e+00 0.00000000000000000000e+00 1.17569131019995435058e+307
+P:  Overflow Invalid 
+P': Overflow Overflow Invalid 
+Input: 1.00000000000000000000e+00 0.00000000000000000000e+00 1.08436849894894888082e+308
+P:  Overflow Invalid 
+P': Overflow Overflow Invalid 
+Input: -0.00000000000000000000e+00 1.79769313486231570815e+308 -4.94065645841246544177e-324
+P:  Underflow DivByZero Overflow Invalid 
+P': Underflow DivByZero Overflow Underflow Invalid 
+Inputs:          19
+Exception in P:  16
+Exception in P': 16
+Diff producing:  11
