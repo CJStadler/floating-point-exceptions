@@ -53,9 +53,9 @@ def parse_param(match: Tuple[str, str, str, str]) -> Union[str, float]:
     elif num2:
         return float(num2)
     elif hex:
-        raise RuntimeError("HEX")
         raw = bytes.fromhex(hex[2:])
-        (parsed,) = struct.unpack('d', raw)
+        # Big-endian: https://llvm.org/docs/LangRef.html#simple-constants
+        (parsed,) = struct.unpack('>d', raw)
         return parsed
     else:
         return var
