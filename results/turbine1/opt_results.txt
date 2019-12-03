@@ -31,6 +31,8 @@ P': Overflow Overflow Invalid
 Input: -0.00000000000000000000e+00 1.79769313486231570815e+308 -4.94065645841246544177e-324
 P:  Underflow DivByZero Overflow Invalid 
 P': Underflow DivByZero Overflow Underflow Invalid 
+
+26 constraints yielded 19 inputs
 Inputs:          19
 Exception in P:  16
 Exception in P': 16

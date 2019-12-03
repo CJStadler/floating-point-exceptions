@@ -37,6 +37,8 @@ P': Overflow Overflow
 Input: 1.59242021634862570474e+308 1.25000000000000000000e-01 -1.70000000000000000000e+01
 P:  Overflow 
 P': 
+
+32 constraints yielded 24 inputs
 Inputs:          22
 Exception in P:  21
 Exception in P': 20
