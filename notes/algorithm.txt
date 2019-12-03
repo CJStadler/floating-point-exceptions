@@ -1,0 +1,39 @@
+fun main(source):
+  P = compile source to LLVM without optimizations
+  P' = compile source to LLVM with optimizations
+
+  p_inputs = find_inputs(P)
+  p'_inputs = find_inputs(P')
+
+  search(p_inputs, P, P')
+  search(p'_inputs, P, P')
+
+fun find_inputs(llvm):
+  solutions = []
+
+  for inst in llvm.instructions:
+    if inst == fdiv:
+      # Invalid
+      solutions << solve(inst.numerator == 0 and inst.denominator == 0)
+      # DivByZero
+      solutions << solve(inst.numerator != 0 and inst.denominator == 0)
+      # Overflow
+      solutions << solve(abs(inst.numerator) > (abs(inst.denominator * DBL_MAX)))
+    else:
+      result = symbolically_execute(inst)
+      # Overflow
+      solutions << solve(abs(result) > DBL_MAX)
+      # Underflow
+      solutions << solve(abs(result) > 0 and abs(result) < DBL_MIN)
+
+  inputs = select_sat(solutions)
+  return inputs
+
+fun search(inputs, P, P'):
+  for input in inputs:
+    for input in nearby_fp_numbers(input):
+      p_trace = exec(P, input)
+      p'_trace = exec(P', input)
+
+      if p_trace != p'_trace:
+        report_diff(input, p_trace, p'_trace)
