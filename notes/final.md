@@ -78,6 +78,7 @@
 ## 12/3
 
 - Loop unrolling (use LLVM?)
+  - `opt -loop-unroll`. Leaves some junk that we should ignore.
 - Combine inputs from P and P'
   - Compare constraints so that you don't solve the same constraint twice?
 - Write up in Latex

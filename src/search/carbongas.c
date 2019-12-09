@@ -1,5 +1,3 @@
-#include <math.h>
-
 double ex11(double v) {
 	double p = 35000000.0;
 	double a = 0.401;
