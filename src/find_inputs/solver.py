@@ -85,7 +85,8 @@ def parse_instruction(instruction: str) \
     """
     matches = ARG_REGEX.findall(instruction)
     if len(matches) != 3:
-        raise RuntimeError("Error parsing \"%s\"" % instruction)
+        print("Error parsing \"%s\", ignoring" % instruction)
+        return None
 
     ((result, _, _, _), p1, p2) = matches
 
@@ -225,7 +226,9 @@ def make_constraints(llvm_ast: llvm.ModuleRef) \
         for block in function.blocks:
             for instruction in block.instructions:
                 opcode = instruction.opcode
-                if opcode == "ret":
+                if opcode not in ["fmul", "fdiv", "fadd", "fsub"]:
+                    if opcode != "ret":
+                        print("Unknown operation \"%s\", ignoring" % opcode)
                     continue
 
                 instr = instruction.__str__()

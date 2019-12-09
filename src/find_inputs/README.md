@@ -64,6 +64,8 @@ Saved input solutions to inputs.txt
 - Programs must only contain a single function.
 - All values must be doubles.
 - There must be no function calls.
+- Loops must be fully unrolled (use `opt -loop-unroll -unroll-count=X`) before
+  passing the LLVM IR to this program.
 
 ## Development notes
 
