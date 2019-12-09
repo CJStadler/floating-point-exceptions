@@ -8,7 +8,8 @@ def solve_and_log(constraint: Constraint) -> Solution:
     return solution
 
 
-def compile(unopt_llvm_filename, opt_llvm_filename, inputs_filename) -> None:
+def find_inputs(unopt_llvm_filename, opt_llvm_filename, inputs_filename) \
+        -> None:
     llvm_engine = create_execution_engine()
     unopt_llvm_ast = parse_file(unopt_llvm_filename, llvm_engine)
     opt_llvm_ast = parse_file(opt_llvm_filename, llvm_engine)
@@ -55,4 +56,4 @@ if __name__ == "__main__":
                              "given program) to.")
 
     args = parser.parse_args()
-    compile(args.unopt_llvm_file, args.opt_llvm_file, args.inputs_file)
+    find_inputs(args.unopt_llvm_file, args.opt_llvm_file, args.inputs_file)
