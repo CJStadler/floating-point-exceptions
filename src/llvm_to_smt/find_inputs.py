@@ -33,10 +33,13 @@ def find_inputs(unopt_llvm_filename, opt_llvm_filename, inputs_filename) \
     print("")
     print("%d constraints are satisfiable" % len(sat))
 
+    # Put inputs in the order expected by the function.
+    inputs_lists = {tuple([solution.inputs[formal] for formal in formals])
+                    for solution in sat}
+    print("%d inputs are unique" % len(inputs_lists))
+
     with open(inputs_filename, "w") as f:
-        for solution in sat:
-            # Put inputs in the order expected by the function.
-            inputs = [solution.inputs[formal] for formal in formals]
+        for inputs in inputs_lists:
             f.write(" ".join(inputs))
             f.write("\n")
     print("Saved input solutions to %s" % inputs_filename)
