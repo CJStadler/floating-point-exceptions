@@ -1,5 +1,27 @@
 # Exception triggering inputs finder
 
+This project finds inputs that are likely to trigger floating point exceptions
+in numerical C programs. For each instruction in the program we build
+constraints over the program inputs which when satisfied should trigger a
+floating point exception.  The constraints are over the Reals, so there is no
+guarantee that an exception will actually be triggered in floating point
+execution.
+
+For example, given the following program
+```c
+double foo(double a, double b) {
+  return (a + b);
+}
+```
+
+We generate a constraint `|a + b| > DBL_MAX` to find inputs that should trigger
+an oveflow, and a constraint `|a + b| < DBL_MIN` to find inputs that should
+trigger an underflow. Each constraint is then solved and satisfying assignments
+are reported.
+
+Programs are input as LLVM IR and parsed into an AST. For each instruction in
+the AST a constraint is built and solved using Z3.
+
 ## Setup
 
 Tested with python 3.5.3.
@@ -13,7 +35,7 @@ pip install -r requirements.txt
 
 Compile a program to LLVM IR:
 ```sh
-$ clang -S -emit-llvm -O1 -o examples/turbine1.ll examples/turbine1.c
+$ clang -S -emit-llvm -O1 -o examples/foo.ll examples/foo.c
 ```
 This is the "unoptimized" version, but we still use `O1` so that variables are
 not put on the stack. The IR should contain only a sequence of floating point
@@ -21,18 +43,19 @@ operations.
 
 Compile the same program with fast math:
 ```sh
-$ clang -S -emit-llvm -O1 -ffast-math -o examples/turbine1_opt.ll examples/turbine1.c
+$ clang -S -emit-llvm -O1 -ffast-math -o examples/foo_opt.ll examples/foo.c
 ```
 
 Generate inputs from both versions:
 ```sh
-$ python3 compile.py examples/turbine1.ll examples/turbine1_opt.ll inputs.txt
-Made 32 constraints from examples/turbine1.ll
-Made 26 constraints from examples/turbine1_opt.ll
-48 constraints are unique
+$ python3 find_inputs.py examples/foo.ll examples/foo_opt.ll inputs.txt
+Made 2 constraints from examples/foo.ll
+Made 2 constraints from examples/foo_opt.ll
+4 constraints are unique
 Solving
-................................................
-44 constraints are satisfiable
+....
+4 constraints are satisfiable
+2 inputs are unique
 Saved input solutions to inputs.txt
 ```
 
@@ -41,3 +64,7 @@ Saved input solutions to inputs.txt
 - Programs must only contain a single function.
 - All values must be doubles.
 - There must be no function calls.
+
+## Development notes
+
+- Type annotations are used and can be checked with mypy.
