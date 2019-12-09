@@ -4,7 +4,7 @@ import llvmlite.binding as llvm
 import z3
 import re
 
-from typing import Tuple, List, Dict, Union, Set
+from typing import Tuple, Dict, Union, Set, List
 
 VAR_REGEX = re.compile(r"%[a-zA-Z0-9]+")
 NUM_REGEX = re.compile(r"[0-9]+.[0-9]+e(\+|\-)[0-9]+")
@@ -24,6 +24,22 @@ class Constraint:
         self.name = name
         self.instruction = instr
         self.formula = formula
+
+    def _and(self, other: z3.ArithRef):
+        return Constraint(
+            self.name,
+            self.instruction,
+            z3.And(self.formula, other),
+        )
+
+    def __eq__(self, other) -> bool:
+        # This ignores name and instruction
+        return isinstance(other, Constraint) and \
+               self.formula.eq(other.formula)
+
+    def __hash__(self) -> int:
+        # This ignores name and instruction
+        return hash(self.formula)
 
 
 class Solution:
@@ -106,8 +122,8 @@ def format_solution(solution: z3.RatNumRef) -> str:
     return decimal_str.rstrip("?")
 
 
-def solve(solver: z3.Solver, constraint: Constraint) -> Solution:
-    solver.push()
+def solve(constraint: Constraint) -> Solution:
+    solver = z3.Solver()
     solver.add(constraint.formula)
 
     sat = str(solver.check())
@@ -119,7 +135,6 @@ def solve(solver: z3.Solver, constraint: Constraint) -> Solution:
 
     result = Solution(sat, inputs, constraint)
 
-    solver.pop()
     return result
 
 
@@ -130,7 +145,7 @@ def abs(value: FloatArith) -> FloatArith:
 
 def check_division(instruction: str,
                    numerator: FloatArith,
-                   denominator: FloatArith) -> List[Constraint]:
+                   denominator: FloatArith) -> Set[Constraint]:
     """
     Make constraints to check for an exception in a div.
     """
@@ -154,16 +169,16 @@ def check_division(instruction: str,
                                abs(numerator) > (abs(denominator) * DBL_MAX))
     underflow = Constraint("underflow", instruction, underflow_formula)
 
-    constraints = [
+    constraints = {
         invalid,
         div_by_zero,
         overflow,
         underflow
-    ]
+    }
     return constraints
 
 
-def check_non_div(instruction: str, result: z3.ArithRef) -> List[Constraint]:
+def check_non_div(instruction: str, result: z3.ArithRef) -> Set[Constraint]:
     """
     Make constraints to check for an exception in a mul/add/sub.
     """
@@ -174,19 +189,21 @@ def check_non_div(instruction: str, result: z3.ArithRef) -> List[Constraint]:
         instruction,
         z3.And(absv > 0, absv < DBL_MIN)
     )
-    constraints = [overflow, underflow]
+    constraints = {overflow, underflow}
     return constraints
 
 
-def get_constraints(llvm_ast: llvm.ModuleRef) \
-        -> Tuple[List[z3.ArithRef], List[Constraint]]:
+def make_constraints(llvm_ast: llvm.ModuleRef) \
+        -> Tuple[List[str], Set[Constraint]]:
     """
     Get a list of z3 constraints. Each represents constraints on inputs which
     should trigger an exception somewhere in the program.
     """
+    # References to all identifiers
     vars = {}  # type: Dict[str, z3.ArithRef]
-    constraints = []  # type: List[Constraint]
-    params = []  # type: List[z3.ArithRef]
+    constraints = set()  # type: Set[Constraint]
+    formals = []  # type: List[str]
+    param_constraint = z3.BoolVal(True)
 
     first = True
     for function in llvm_ast.functions:
@@ -199,9 +216,11 @@ def get_constraints(llvm_ast: llvm.ModuleRef) \
         # it is less than DBL_MAX.
         for arg in function.arguments:
             name = parse_arg(arg.__str__())
+            formals.append(name)
             z3_param = z3.Real(name)
-            params.append(z3_param)
             vars[name] = z3_param
+            param_constraint = z3.And(param_constraint,
+                                      abs(z3_param) < DBL_MAX)
 
         for block in function.blocks:
             for instruction in block.instructions:
@@ -226,46 +245,9 @@ def get_constraints(llvm_ast: llvm.ModuleRef) \
                 vars[name] = result
 
                 if opcode == 'fdiv':
-                    constraints += check_division(instr, p1_ref, p2_ref)
+                    constraints |= check_division(instr, p1_ref, p2_ref)
                 else:
-                    constraints += check_non_div(instr, result)
+                    constraints |= check_non_div(instr, result)
 
-    return (params, constraints)
-
-
-def find_inputs(llvm_ast: llvm.ModuleRef) -> Tuple[Set[Tuple[str, ...]], int]:
-    """
-    Find inputs that should trigger exceptions.
-    """
-    inputs = set()  # type: Set[Tuple[str, ...]]
-    solver = z3.Solver()
-
-    (params, constraints) = get_constraints(llvm_ast)
-
-    # Require that each input be less than DBL_MAX.
-    # These will apply to each exception constraint.
-    for param in params:
-        solver.add(abs(param) < DBL_MAX)
-
-    solutions = (solve(solver, constraint) for constraint in constraints)
-
-    for solution in solutions:
-        print("Checking for %s in" % solution.constraint.name)
-        print(solution.constraint.instruction)
-
-        if solution.sat == "sat":
-            param_vals = []
-
-            for param in params:
-                param_name = str(param)
-                value = solution.inputs[param_name]
-                print("%s = %s" % (param_name, value))
-                param_vals.append(value)
-
-            inputs.add(tuple(param_vals))
-        else:
-            print(solution.sat)
-
-        print()
-
-    return (inputs, len(constraints))
+    constraints_with_params = {c._and(param_constraint) for c in constraints}
+    return (formals, constraints_with_params)
