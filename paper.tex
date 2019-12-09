@@ -1,0 +1,129 @@
+\usepackage{listings}
+\usepackage[style=numeric]{biblatex}
+\addbibresource{references.bib}
+
+The Ariadne paper aimed to discover inputs that raise floating point
+exceptions in a given program. As an extension of this work we aim to discover
+inputs that lead to different exception-raising behavior between two versions
+of a given program — one optimized with "fast math".
+
+Our approach has two steps:
+\begin{enumerate}
+  \item Solve: find candidate inputs using an SMT solver (Z3).
+  \item Search: Test inputs in the neighborhood of each candidate against P and
+P' until one produces different exception traces.
+\end{enumerate}
+
+\section{Find candidate inputs}
+
+Ideally to find an input that raises an exception at operation in a program we
+should be able to construct a formula in a theory of floating point arithmetic
+representing the conditions under which an exception would occur. For example,
+given an operation \texttt{a + b} we could construct the formula $(a + b =
+\infty) \lor (a + b = -\infty)$. Solutions to this formula would be guaranteed
+to raise an overflow exception if given as inputs to the operation. And if the
+formula is unsatisfiable this would prove that the operation could not raise the
+exception.
+
+However, solving floating point formulae like this is not generally practical.
+Adopting the approach of Ariadne we instead construct formulae over the real
+numbers. In the above example we construct the formula $|a + b| > m$, where $m$
+is the greatest representable floating point value (e.g. \texttt{DBL_MAX} if $a$
+and $b$ are double precision values). Since floating point arithmetic is an
+approximation of real arithmetic we expect that solutions to this formula are
+likely to either raise an overflow or be near values which will raise an
+overflow.
+
+For each instruction in the given program we construct such a formula for each
+type of exception that could be raised (See table in \cite[page
+4]{barr_automatic_2013}). We do not make formulae for inexact exceptions as
+these are too common to be notable.
+
+\subsection{Implementation}
+
+We have written a Python program which implements this technique. It takes two
+files as inputs: LLVM IR for $P$ and $P'$. Each of these is parsed into an AST
+using \textit{llvmlite}, which is a Python wrapper around LLVM. Constraints for
+each program are built using \textit{z3py}, a Python wrapper around Z3. The
+union of the two sets of constraints is then taken. Since $P$ and $P'$ are
+likely to share many instructions some of the same constraints are be generated
+from both programs. We then solve each constraint (again using \textit{z3py})
+and return the satisfying assignments for each satisfiable constraint.
+
+\section{Search for exception raising inputs}
+
+\section{Algorithm}
+
+\begin{lstlisting}
+fun main(source):
+  P = compile source to LLVM without optimizations
+  P' = compile source to LLVM with optimizations
+
+  inputs = find_inputs(constraints)
+  search(inputs, P, P')
+
+fun find_inputs(P, P')
+  p_constraints = make_constraints(P)
+  p'_constraints = make_constraints(P')
+
+  constraints = p_constraints ∪ p'_constraints
+
+  inputs = collect_inputs(constraints)
+  return map ()
+
+fun collect_inputs(constraints):
+  solutions = []
+
+  for constraint in constraints:
+    solution = solve(constraint)
+    if solution is sat:
+      solutions << solution.inputs
+
+  return solutions
+
+fun make_constraints(llvm):
+  env = {} # Map of identifiers to symbolic values
+
+  # Require that each input is in the representable range.
+  formal_constraint = True
+  for f in llvm.formals:
+    env[f] = f
+    formal_constraint = (formal_constraint and (abs(f) < DBL_MAX))
+
+  constraints = []
+
+  for inst in llvm.instructions:
+    result = symbolically_execute(inst, env)
+    env[inst.destination] = result
+
+    if inst.op == fdiv:
+      # Invalid
+      constraints << (inst.numerator == 0 and inst.denominator == 0)
+      # DivByZero
+      constraints << (inst.numerator != 0 and inst.denominator == 0)
+      # Overflow
+      constraints << (abs(inst.numerator) > (abs(inst.denominator * DBL_MAX)))
+    else:
+      # Overflow
+      constraints << (abs(result) > DBL_MAX)
+      # Underflow
+      constraints << (abs(result) > 0 and abs(result) < DBL_MIN)
+
+  constraints = Add to each constraint that 
+  return constraints
+
+fun search(inputs, P, P'):
+  P = instrument P to check for FP exceptions
+  P' = instrument P' to check for FP exceptions
+
+  for input in inputs:
+    for input in nearby_fp_numbers(input):
+      p_trace = exec(P, input)
+      p'_trace = exec(P', input)
+
+      if p_trace != p'_trace:
+        report_diff(input, p_trace, p'_trace)
+\end{lstlisting}
+
+\printbibheading
+\printbibliography
