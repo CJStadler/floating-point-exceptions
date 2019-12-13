@@ -1,0 +1,6 @@
+Program,P constraints,P' constraints,Unique Constraints,Satisfiable,Unique inputs,Inputs with different behavior
+turbine1,32,26,48,44,29,14
+turbine3,32,26,48,44,30,11
+jetengine,58,58,106,96,41,0
+carbongas,16,16,26,23,4,0
+odometer (fully unrolled),5414,3604,9010,8108,3038,247
