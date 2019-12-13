@@ -8,3 +8,5 @@
 *.trace
 *.zip
 paper.pdf
+.mypy_cache
+__pycache__
