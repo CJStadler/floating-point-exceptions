@@ -52,6 +52,21 @@ and return the satisfying assignments for each satisfiable constraint.
 
 \section{Search for exception raising inputs}
 
+TODO
+
+\section{Results}
+
+\begin{table}[]
+\begin{tabular}{l|llll}
+Program                   & Constraints (P, P') & Satisfiable & Unique inputs & Diff producing \\ \hline
+turbine1                  & 48 (32, 26)         & 44          & 29            & 14             \\
+turbine3                  & 48 (32, 26)         & 44          & 30            & 11             \\
+jetengine                 & 106 (58, 58)        & 96          & 41            & 0              \\
+carbongas                 & 26 (16, 16)         & 23          & 4             & 0              \\
+odometer (fully unrolled) & 9010 (5414, 3604)   & 8108        & 3038          & 247
+\end{tabular}
+\end{table}
+
 \section{Algorithm}
 
 \begin{lstlisting}

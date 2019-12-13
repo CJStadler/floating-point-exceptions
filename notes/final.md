@@ -86,3 +86,11 @@
   - Results
 
 - Replace math functions with uninterpreted functions.
+
+## 12/11
+
+- # of each ex for P and P'.
+  - For carbongas give numbers for each input.
+- Description of each benchmark.
+- Technical description and implementation details.
+- Focus on packaging implementation, reproducibility.
