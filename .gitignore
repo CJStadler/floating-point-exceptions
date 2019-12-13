@@ -1,8 +1,10 @@
 *.out
 *.o
 *.so
+*.ll
 *.bc
 *.gz
 *.tar
 *.trace
 *.zip
+paper.pdf
