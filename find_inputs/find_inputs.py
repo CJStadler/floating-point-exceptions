@@ -1,5 +1,7 @@
-from parser import create_execution_engine, parse_file
-from solver import make_constraints, solve, Constraint, Solution
+from typing import Tuple
+
+from .parser import create_execution_engine, parse_file
+from .solver import make_constraints, solve, Constraint, Solution
 
 
 def solve_and_log(constraint: Constraint) -> Solution:
@@ -9,17 +11,22 @@ def solve_and_log(constraint: Constraint) -> Solution:
 
 
 def find_inputs(unopt_llvm_filename, opt_llvm_filename, inputs_filename) \
-        -> None:
+        -> Tuple[str, int]:
     llvm_engine = create_execution_engine()
     unopt_llvm_ast = parse_file(unopt_llvm_filename, llvm_engine)
     opt_llvm_ast = parse_file(opt_llvm_filename, llvm_engine)
 
-    (formals, unopt_constraints) = make_constraints(unopt_llvm_ast)
+    (function_name, formals, unopt_constraints) = \
+        make_constraints(unopt_llvm_ast)
     print("Made %d constraints from %s" % (len(unopt_constraints),
                                            unopt_llvm_filename))
-    (opt_formals, opt_constraints) = make_constraints(opt_llvm_ast)
+    (opt_function_name, opt_formals, opt_constraints) = \
+        make_constraints(opt_llvm_ast)
     print("Made %d constraints from %s" % (len(opt_constraints),
                                            opt_llvm_filename))
+
+    if function_name != opt_function_name:
+        raise RuntimeError("Names of opt and unopt functions do not match")
 
     if formals != opt_formals:
         raise RuntimeError("Formals of opt and unopt do not match")
@@ -43,6 +50,8 @@ def find_inputs(unopt_llvm_filename, opt_llvm_filename, inputs_filename) \
             f.write(" ".join(inputs))
             f.write("\n")
     print("Saved input solutions to %s" % inputs_filename)
+
+    return (function_name, len(formals))
 
 
 if __name__ == "__main__":

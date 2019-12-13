@@ -85,8 +85,7 @@ def parse_instruction(instruction: str) \
     """
     matches = ARG_REGEX.findall(instruction)
     if len(matches) != 3:
-        print("Error parsing \"%s\", ignoring" % instruction)
-        return None
+        raise RuntimeError("Error parsing \"%s\"" % instruction)
 
     ((result, _, _, _), p1, p2) = matches
 
@@ -195,7 +194,7 @@ def check_non_div(instruction: str, result: z3.ArithRef) -> Set[Constraint]:
 
 
 def make_constraints(llvm_ast: llvm.ModuleRef) \
-        -> Tuple[List[str], Set[Constraint]]:
+        -> Tuple[str, List[str], Set[Constraint]]:
     """
     Get a list of z3 constraints. Each represents constraints on inputs which
     should trigger an exception somewhere in the program.
@@ -206,12 +205,12 @@ def make_constraints(llvm_ast: llvm.ModuleRef) \
     formals = []  # type: List[str]
     param_constraint = z3.BoolVal(True)
 
-    first = True
+    function_name = None
     for function in llvm_ast.functions:
-        if not first:
+        if function_name:
             raise RuntimeError("Only one function supported")
         else:
-            first = False
+            function_name = function.name
 
         # Declare an unimplemented function for each arg and assert that
         # it is less than DBL_MAX.
@@ -252,5 +251,9 @@ def make_constraints(llvm_ast: llvm.ModuleRef) \
                 else:
                     constraints |= check_non_div(instr, result)
 
-    constraints_with_params = {c._and(param_constraint) for c in constraints}
-    return (formals, constraints_with_params)
+    if function_name:
+        constraints_with_params = {c._and(param_constraint)
+                                   for c in constraints}
+        return (function_name, formals, constraints_with_params)
+    else:
+        raise RuntimeError("No function found")
