@@ -10,3 +10,5 @@
 paper.pdf
 .mypy_cache
 __pycache__
+inputs.tmp.txt
+source.tmp.c

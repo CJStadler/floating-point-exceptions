@@ -29,7 +29,7 @@ def compile_search(program_filename: str,
                    args_count: int) -> None:
     # The search makefile expects the program source to be in the search
     # directory, so we copy it.
-    source = "source.c"
+    source = "source.tmp.c"
     shutil.copy(program_filename, os.path.join(SEARCH_DIR, source))
 
     subprocess.check_call([
@@ -57,7 +57,7 @@ def main(program_filename: str) -> None:
     compile_to_llvm(program_filename, opt_filename, True)
 
     # Solve for candidate inputs
-    inputs_filename = "inputs.txt"
+    inputs_filename = "inputs.tmp.txt"
     (function_name, args_count) = find_inputs(unopt_filename, opt_filename,
                                               inputs_filename)
 
