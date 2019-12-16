@@ -13,24 +13,11 @@ NAME := $(basename $(SOURCE))
 #   FUNCTION: The name of the function to test.
 #   N: The number of arguments to the function to test.
 #
-# The program in SOURCE must define a function
-# `double vector_call(std::vector<double)`
-# which wraps a call to FUNCTION.
-#
 # This compiles the program into two objects: one with instcombine and one
 # without. In each the function is renamed so that the driver can call them
 # both.
 search.out: search.bc
 	$(CPP) -lm -o $@ $<
-
-test.out: test-linked.bc
-	$(CPP) -lm -o $@ $<
-
-test-linked.bc: test.bc $(LIBS) unopt_$(NAME).bc opt_$(NAME).bc
-	llvm-link -o $@ $^
-
-test.ll: test.c
-	$(CPP) -S -emit-llvm -o $@ $<
 
 search.bc: driver.bc bridge_$(N).bc $(LIBS) unopt_$(NAME).bc opt_$(NAME).bc
 	llvm-link -o $@ $^
