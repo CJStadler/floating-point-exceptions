@@ -1,2 +1,0 @@
-P:  32 constraints yielded 24 inputs
-P': 26 constraints yielded 20 inputs

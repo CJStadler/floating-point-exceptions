@@ -1,4 +1,0 @@
-Inputs:          36
-Exception in P:  26
-Exception in P': 26
-Diff producing:  0
