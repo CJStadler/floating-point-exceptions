@@ -135,6 +135,52 @@ InputResult search_arg(input_list inputs, uint arg_id) {
   }
 }
 
+struct ExCounts {
+  int overflow;
+  int underflow;
+  int div_by_zero;
+  int invalid;
+};
+
+ExCounts operator+(const ExCounts& lhs, const ExCounts& rhs) {
+  return {
+    .overflow=lhs.overflow + rhs.overflow,
+    .underflow=lhs.underflow + rhs.underflow,
+    .div_by_zero=lhs.div_by_zero + rhs.div_by_zero,
+    .invalid=lhs.invalid + rhs.invalid,
+  };
+}
+
+ExCounts get_counts(ExceptionTrace trace) {
+  ExCounts counts = {0, 0, 0, 0};
+
+  int len = trace.size();
+  for(int i = 0; i < len; i++) {
+    FPException ex = trace.at(i);
+
+    switch (ex.type) {
+      case overflow:
+        counts.overflow += 1;
+      case underflow:
+        counts.underflow += 1;
+      case div_by_zero:
+        counts.div_by_zero += 1;
+      case invalid:
+        counts.invalid += 1;
+    }
+  }
+
+  return counts;
+}
+
+void print_counts(FILE* file, ExCounts unopt, ExCounts opt) {
+  fprintf(file, "    Overflow   Underflow  DivByZero  Invalid\n");
+  fprintf(file, "P   %-9d  %-9d  %-9d  %-9d\n",
+         unopt.overflow, unopt.underflow, unopt.div_by_zero, unopt.invalid);
+  fprintf(file, "P'  %-9d  %-9d  %-9d  %-9d\n",
+         opt.overflow, opt.underflow, opt.div_by_zero, opt.invalid);
+}
+
 int main(int argc, char* argv[]) {
   if (argc < 1) {
     puts("Inputs filename required");
@@ -144,9 +190,13 @@ int main(int argc, char* argv[]) {
   int n_inputs = 0;
   int unopt_ex_count = 0;
   int opt_ex_count = 0;
+  ExCounts unopt_ex_totals = {0, 0, 0, 0};
+  ExCounts opt_ex_totals = {0, 0, 0, 0};
   int diff_count = 0;
 
   char* inputs_filename = argv[1];
+  printf("Testing inputs from %s\n", inputs_filename);
+
   std::ifstream inputs_file(inputs_filename);
   std::string line;
   while (std::getline(inputs_file, line)) {
@@ -154,8 +204,14 @@ int main(int argc, char* argv[]) {
     input_list inputs = parse_inputs(line);
     InputResult result = search_arg(inputs, 0);
 
-    if (result.unopt_trace.size() > 0) unopt_ex_count += 1;
-    if (result.opt_trace.size() > 0) opt_ex_count += 1;
+    if (result.unopt_trace.size() > 0) {
+      unopt_ex_count += 1;
+      unopt_ex_totals = unopt_ex_totals + get_counts(result.unopt_trace);
+    }
+    if (result.opt_trace.size() > 0) {
+      opt_ex_count += 1;
+      opt_ex_totals = opt_ex_totals + get_counts(result.opt_trace);
+    }
     if (result.diff) {
       diff_count += 1;
       fprintf(stdout, "Input: ");
@@ -171,4 +227,5 @@ int main(int argc, char* argv[]) {
   fprintf(stdout, "Exception in P:  %d\n", unopt_ex_count);
   fprintf(stdout, "Exception in P': %d\n", opt_ex_count);
   fprintf(stdout, "Diff producing:  %d\n", diff_count);
+  print_counts(stdout, unopt_ex_totals, opt_ex_totals);
 }

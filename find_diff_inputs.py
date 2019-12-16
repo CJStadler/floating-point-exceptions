@@ -68,10 +68,12 @@ def main(program_filename: str, unroll_count: int) -> None:
     inputs_filename = "inputs.tmp.txt"
     (function_name, args_count) = find_inputs(unopt_filename, opt_filename,
                                               inputs_filename)
+    print("")
 
     # Compile search program
     compile_search(program_filename, function_name, args_count)
 
+    print("")
     # Run search program
     run_search(inputs_filename)
 
