@@ -12,10 +12,6 @@
 - carbongas
   - straight line
   - only float
-- coshestonc4
-  - straight line
-  - only float
-  - Uses `exp` from math.h, which we should be able to approximate.
 - jetengine
   - straight line
   - only float
@@ -37,6 +33,10 @@
   - requires `math.h`
   - uses macro constants
 - pendulum
+  - straight line
+  - only float
+  - requires `math.h`
+- coshestonc4
   - straight line
   - only float
   - requires `math.h`
