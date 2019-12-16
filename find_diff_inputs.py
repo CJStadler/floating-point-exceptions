@@ -10,6 +10,7 @@ SEARCH_DIR = os.path.join(THIS_DIR, "search")
 
 def compile_to_llvm(source_filename: str,
                     out_filename: str,
+                    unroll_count: int,
                     ffast_math: bool) -> None:
     print("Compiling {} -> {} with ffast-math={}".
           format(source_filename, out_filename, ffast_math))
@@ -22,6 +23,13 @@ def compile_to_llvm(source_filename: str,
                            "-o",
                            out_filename,
                            source_filename])
+    if unroll_count > 0:
+        subprocess.check_call(["opt",
+                               "-S",
+                               "-loop-unroll",
+                               "-unroll-count=%d" % unroll_count,
+                               "-o", out_filename,
+                               out_filename])
 
 
 def compile_search(program_filename: str,
@@ -49,12 +57,12 @@ def run_search(inputs_filename: str) -> None:
     ], stderr=subprocess.DEVNULL)
 
 
-def main(program_filename: str) -> None:
+def main(program_filename: str, unroll_count: int) -> None:
     # Compile P and P'
     unopt_filename = "unopt.ll"
-    compile_to_llvm(program_filename, unopt_filename, False)
+    compile_to_llvm(program_filename, unopt_filename, unroll_count, False)
     opt_filename = "opt.ll"
-    compile_to_llvm(program_filename, opt_filename, True)
+    compile_to_llvm(program_filename, opt_filename, unroll_count, True)
 
     # Solve for candidate inputs
     inputs_filename = "inputs.tmp.txt"
@@ -74,8 +82,10 @@ if __name__ == "__main__":
                   "behavior in a program optimized with fast math floating " \
                   "point operations."
     parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("--unroll-count", type=int, default=0,
+                        help="Iterations of loops to unroll.")
     parser.add_argument("program", type=str,
                         help="Filename of C program.")
 
     args = parser.parse_args()
-    main(args.program)
+    main(args.program, args.unroll_count)

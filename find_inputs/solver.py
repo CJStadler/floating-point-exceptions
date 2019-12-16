@@ -6,6 +6,9 @@ import re
 
 from typing import Tuple, Dict, Union, Set, List
 
+FP_OPS = ["fmul", "fdiv", "fadd", "fsub"]
+IGNORED_OPS = ["ret", "br"]
+
 VAR_REGEX = re.compile(r"%[a-zA-Z0-9]+")
 NUM_REGEX = re.compile(r"[0-9]+.[0-9]+e(\+|\-)[0-9]+")
 HEX_REGEX = re.compile(r"0x[0-9a-fA-F]+")
@@ -225,10 +228,11 @@ def make_constraints(llvm_ast: llvm.ModuleRef) \
         for block in function.blocks:
             for instruction in block.instructions:
                 opcode = instruction.opcode
-                if opcode not in ["fmul", "fdiv", "fadd", "fsub"]:
-                    if opcode != "ret":
-                        print("Unknown operation \"%s\", ignoring" % opcode)
-                    continue
+                if opcode not in FP_OPS:
+                    if opcode in IGNORED_OPS:
+                        continue
+                    else:
+                        raise RuntimeError("Unknown operation %s" % opcode)
 
                 instr = instruction.__str__()
                 (name, param1, param2) = parse_instruction(instr)
