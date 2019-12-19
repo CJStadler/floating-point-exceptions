@@ -161,12 +161,16 @@ ExCounts get_counts(ExceptionTrace trace) {
     switch (ex.type) {
       case overflow:
         counts.overflow += 1;
+        break;
       case underflow:
         counts.underflow += 1;
+        break;
       case div_by_zero:
         counts.div_by_zero += 1;
+        break;
       case invalid:
         counts.invalid += 1;
+        break;
     }
   }
 
