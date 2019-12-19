@@ -1,7 +1,7 @@
 double position(double sl) {
   // output produced in x,y
   double theta = 0.0, y = 0.0, x = 0.0;
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 2; i++) {
     double TMP_6 = 0.1 * (0.5 * (9.691813336318980 - (12.34 * sl)));
     double TMP_23 = (theta + (((9.691813336318980 - (sl * 12.34)) * 0.1) * 0.5)) *
       (theta + (((9.691813336318980 - (sl * 12.34)) * 0.1) * 0.5));
