@@ -27,7 +27,7 @@ a C source file to analyze and test.
 
 For example:
 ```
-$ python find_diff_inputs.py examples/turbine1.c 
+$ python find_diff_inputs.py examples/turbine1.c
 Compiling examples/turbine1.c -> unopt.ll with ffast-math=False
 Compiling examples/turbine1.c -> opt.ll with ffast-math=True
 Made 32 constraints from unopt.ll
@@ -53,55 +53,55 @@ clang++ -lm -o search.out search.bc
 make: Leaving directory '/floating-point-exceptions/search'
 
 Testing inputs from /floating-point-exceptions/inputs.tmp.txt
-Input: 7.98974726605473692417e+307 -3.00000000000000088818e+00 9.99999999999999666933e-01
-P:  
-P': Overflow 
-Input: 1.00000000000000000000e+00 0.00000000000000000000e+00 -4.94065645841246544177e-324
-P:  Underflow DivByZero Invalid 
-P': Underflow DivByZero Underflow Invalid 
-Input: 1.50000000000000000000e+00 0.00000000000000000000e+00 -4.94065645841246544177e-324
-P:  Underflow DivByZero 
-P': Underflow DivByZero Underflow 
-Input: -1.25000000000000000000e-01 -5.00000000000000000000e-01 -1.48219693752373963253e-323
-P:  Underflow DivByZero Underflow Underflow 
-P': Underflow DivByZero Underflow 
-Input: 1.59242021634862570474e+308 1.25000000000000000000e-01 -1.70000000000000000000e+01
-P:  Overflow 
-P': 
-Input: 0.00000000000000000000e+00 0.00000000000000000000e+00 -4.94065645841246544177e-324
-P:  Underflow DivByZero 
-P': Underflow DivByZero Underflow 
-Input: 8.98846567431157854073e+307 0.00000000000000000000e+00 -4.94065645841246544177e-324
-P:  Underflow DivByZero 
-P': Underflow DivByZero Underflow 
 Input: 1.25000000000000000000e-01 5.00000000000000000000e-01 -1.48219693752373963253e-323
 P:  Underflow DivByZero Underflow Underflow 
 P': Underflow DivByZero Underflow 
 Input: -1.25000000000000000000e-01 1.25000000000000000000e-01 1.07262463439540764888e+155
 P:  Overflow 
 P': Overflow Overflow 
-Input: 5.00000000000000000000e-01 -5.00000000000000000000e-01 -1.48219693752373963253e-323
-P:  Underflow DivByZero Underflow Underflow 
-P': Underflow DivByZero Underflow 
-Input: -8.98846567431157854073e+307 0.00000000000000000000e+00 -4.94065645841246544177e-324
-P:  Underflow DivByZero 
-P': Underflow DivByZero Underflow 
 Input: 1.59242021634862570474e+308 -1.70000000000000000000e+01 1.25000000000000000000e-01
 P:  Overflow 
 P': 
-Input: -1.79769313486231570815e+308 0.00000000000000000000e+00 0.00000000000000000000e+00
-P:  DivByZero Overflow Invalid 
-P': DivByZero 
+Input: 1.50000000000000000000e+00 0.00000000000000000000e+00 -4.94065645841246544177e-324
+P:  Underflow DivByZero 
+P': Underflow DivByZero Underflow 
+Input: -1.25000000000000000000e-01 -5.00000000000000000000e-01 -1.48219693752373963253e-323
+P:  Underflow DivByZero Underflow Underflow 
+P': Underflow DivByZero Underflow 
 Input: -2.50000000000000000000e-01 -1.25000000000000000000e-01 1.34078079299425970996e+154
 P:  Overflow 
 P': Overflow Overflow 
+Input: 0.00000000000000000000e+00 0.00000000000000000000e+00 -4.94065645841246544177e-324
+P:  Underflow DivByZero 
+P': Underflow DivByZero Underflow 
+Input: -1.79769313486231570815e+308 0.00000000000000000000e+00 0.00000000000000000000e+00
+P:  DivByZero Overflow Invalid 
+P': DivByZero 
+Input: -8.98846567431157854073e+307 0.00000000000000000000e+00 -4.94065645841246544177e-324
+P:  Underflow DivByZero 
+P': Underflow DivByZero Underflow 
+Input: 8.98846567431157854073e+307 0.00000000000000000000e+00 -4.94065645841246544177e-324
+P:  Underflow DivByZero 
+P': Underflow DivByZero Underflow 
+Input: 1.00000000000000000000e+00 0.00000000000000000000e+00 -4.94065645841246544177e-324
+P:  Underflow DivByZero Invalid 
+P': Underflow DivByZero Underflow Invalid 
+Input: 1.59242021634862570474e+308 1.25000000000000000000e-01 -1.70000000000000000000e+01
+P:  Overflow 
+P': 
+Input: 7.98974726605473692417e+307 -3.00000000000000088818e+00 9.99999999999999666933e-01
+P:  
+P': Overflow 
+Input: 5.00000000000000000000e-01 -5.00000000000000000000e-01 -1.48219693752373963253e-323
+P:  Underflow DivByZero Underflow Underflow 
+P': Underflow DivByZero Underflow 
 Inputs:          29
 Exception in P:  25
 Exception in P': 24
 Diff producing:  14
     Overflow   Underflow  DivByZero  Invalid
-P   8          34         51         55       
-P'  8          36         53         56
+P   8          26         17         4        
+P'  8          28         17         3
 ```
 
 If the program has loops they must be unrolled by passing `--unroll-count N`
