@@ -27,6 +27,8 @@ struct InputResult {
   input_list inputs;
   ExceptionTrace unopt_trace;
   ExceptionTrace opt_trace;
+  double unopt_result;
+  double opt_result;
   bool diff;
 };
 
@@ -64,12 +66,14 @@ InputResult test_inputs(input_list inputs) {
   fprintf(stderr, "Calling unopt\n");
   double r_unopt = p_unopt(inputs);
   fprintf(stderr, "%.20e\n", r_unopt);
+  result.unopt_result = r_unopt;
   result.unopt_trace = ex_trace;
 
   ex_trace.clear();
   fprintf(stderr, "Calling opt\n");
   double r_opt = p_opt(inputs);
   fprintf(stderr, "%.20e\n", r_opt);
+  result.opt_result = r_opt;
   result.opt_trace = ex_trace;
 
   result.diff = result.unopt_trace != result.opt_trace;
@@ -224,6 +228,8 @@ int main(int argc, char* argv[]) {
       print_trace(stdout, result.unopt_trace);
       fprintf(stdout, "P': ");
       print_trace(stdout, result.opt_trace);
+      fprintf(stdout, "P  result: %.20e\n", result.unopt_result);
+      fprintf(stdout, "P' result: %.20e\n", result.opt_result);
     }
   }
 
